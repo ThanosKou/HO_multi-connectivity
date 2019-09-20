@@ -14,3 +14,6 @@ P_ss = zeros(1,M+1);
 for i = 0:M
     P_ss(i+1) = nchoosek(M,i) .* Pbl^(M-i) * Pub^(i);
 end
+
+format shortEng
+P_ss'
