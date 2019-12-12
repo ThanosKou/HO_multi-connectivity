@@ -32,7 +32,7 @@ tempInd = 0;
 % tempInd2=0;
 num0BS = zeros(1,nBL*nAP*nO);
 num0BS_debug = zeros(1,nBL*nAP*nO);
-Directory = {'SimulationResults'};
+Directory = {'Results/SimulationResults'};
 
 prob_block = zeros(nAP,nMC,nBL,nPrep,nDisc);
 
@@ -54,45 +54,39 @@ numBSs(2) = 12;
 numBSs(3) = 9;
 numBSs(4) = 12;
 
-% archi is 1 for 3GPP, 2 for FIBR
-archi = zeros(1,length(Directory));
-archi(1) = 1;
-archi(2) = 1;
-archi(3) = 2;
-archi(4) = 2;
-
-
-
 for aID=1:6000
-    %nonEmpty = nonEmpty + 1;
-    dataa = csvread(strcat('output',int2str(aID),'.csv'));
-    for rowData=1:10 % we have 30 columns but 3 consecutive elements belong to the same ind
-        for colData=1:32
-            % First we find the corresponding indeces
-            indAP = ceil(colData/8); % number of BS elements indeces are repeated every 8 values
-            indMC = ceil(mod(colData,8)/2);
-            if indMC == 0
-                indMC = 4; 
+    if (exist(strcat(Directory{dir},'output_',int2str(aID),'.csv'))==0)
+        dataa = csvread(strcat('output_',int2str(aID),'.csv'));
+        for rowData=1:10 % we have 30 columns but 3 consecutive elements belong to the same ind
+            for colData=1:32
+                % First we find the corresponding indices
+                indAP = ceil(colData/8); % number of BS elements indeces are repeated every 8 values
+                indMC = ceil(mod(colData,8)/2);
+                if indMC == 0
+                    indMC = 4; 
+                end
+                indBD = mod(colData,2); %number of block densities elements indeces keep inter-changing
+                if indBD == 0
+                    indBD = 2;
+                end
+                indPrep = mod(rowData,2);
+                if indPrep == 0
+                    indPrep = 2;
+                end
+                indDisc = ceil(rowData/2);
+                % Now, we update probabilities and blockage duration
+                prob_block(indAP,indMC,indBL,indPrep,indDisc) = prob_block(indAP,indMC,indBL,indPrep,indDisc) + data(rowData,colData);
+                prob_RLF(indAP,indMC,indBL,indPrep,indDisc) = prob_RLF(indAP,indMC,indBL,indPrep,indDisc) + data(rowData+1,colData);
+                block_dur(indAP,indMC,indBL,indPrep,indDisc) = block_dur(indAP,indMC,indBL,indPrep,indDisc) + data(rowData+2,colData);
             end
-            indBD = mod(colData,2); %number of block densities elements indeces keep inter-changing
-            if indBD == 0
-                indBD = 2;
-            end
-            indPrep = mod(rowData,2);
-            if indPrep == 0
-                indPrep = 2;
-            end
-            indDisc = ceil(rowData/2);
-            % Now, we update probabilities and blockage duration
-            prob_block(indAP,indMC,indBL,indPrep,indDisc) = prob_block(indAP,indMC,indBL,indPrep,indDisc) + data(rowData,colData);
-            prob_RLF(indAP,indMC,indBL,indPrep,indDisc) = prob_RLF(indAP,indMC,indBL,indPrep,indDisc) + data(rowData+1,colData);
-            block_dur(indAP,indMC,indBL,indPrep,indDisc) = block_dur(indAP,indMC,indBL,indPrep,indDisc) + data(rowData+2,colData);
-        end
-    end    
+        end 
+    else 
+        nonEmpty = nonEmpty + 1;
+    end 
 end 
-prob_block = prob_block/6000;
-prob_RLF = prob_RLF/6000;
-block_dur = block_dur/6000;
+prob_block = prob_block/nonEmpty;
+prob_RLF = prob_RLF/nonEmpty;
+block_dur = block_dur/nonEmpty;
 
 %% Process the above here
 
