@@ -58,6 +58,10 @@ toc;
 
 P_os = simplify(sum(X([chain_states.right]==0)));
 
+string = [num2str(K),'-Connetivity-',num2str(M),'-BSinCoverage'];
+
+save(string,'X','MM','chain_states');
+
 aaa=3;
 
 
