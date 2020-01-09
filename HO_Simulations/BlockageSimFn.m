@@ -61,8 +61,8 @@ simTime = BS_input.SIMULATION_TIME; %sec Total Simulation time
 mu = BS_input.MU; %Expected bloc dur =1/mu
 conDegree = BS_input.DEGREE_CONNECTIVITY;
 
-RLF_timer = 0.03; %(sec) time to declare RLF
-RLF_recovery = 0.04; %(sec) time to exit RLF and establish a new link
+RLF_timer = 999; %(sec) time to declare RLF
+RLF_recovery = 999; %(sec) time to exit RLF and establish a new link
 
 dataBS = cell(nT,1); 
 %dataBS contain array of timestamps of blocker arrival for all BSs,
@@ -184,6 +184,9 @@ for indDisc=1:length(discovery_time)
         %                         end
                                %blockage_duration(end) = timestamp - blockage_duration(end); 
                             %end 
+                            if isempty(BSSET) % if BSSET was empty and we add a BS, then we the blockage period ends
+                                blockage_duration(end) = timestamp - blockage_duration(end);
+                            end 
                             BSSET = [BSSET newBS]; 
                             BS_state_iter{end+1} = timestamp;
                             BS_state_iter{end+1} = BSSET; % for throughput calculation
@@ -274,62 +277,6 @@ for indDisc=1:length(discovery_time)
                     else
                         blockage_duration = [blockage_duration timestamp];
                         block_instance = [block_instance timestamp]; % useful to calculate throughput
-                        recov_ind = {actions.fnc};
-                        recov_tim = {actions.timeinstance};
-                        recov_BS = {actions.BSindex};
-                        recov_times = [];
-                        for i=1:length(recov_ind)
-                            if strcmp(recov_ind{i},'recover') && recov_tim{i} < timestamp + RLF_timer % then one BS recovers before entering RLF
-                                recov_times = [recov_times recov_tim{i}];
-                                recovered_BS = recov_BS{i};
-                            end 
-                        end 
-                        if ~isempty(recov_times) % saved from RLF
-                            timestamp = min(recov_times);
-                            blockage_duration(end) = timestamp - blockage_duration(end);
-                        else % not saved
-                            succ = 0;
-                            timestamp = blockTime + RLF_timer + RLF_recovery;
-                            while succ == 0
-                                actions = []; % clean all the actions and choose new BSs after 40ms
-                                BSSET = randperm(nT,conDegree);
-                                BS_state_iter{end+1} = timestamp;
-                                BS_state_iter{end+1} = BSSET; % for throughput calculation
-                                if isempty(BS_state_iter{end})
-                                    BS_state_iter{end} = 0;
-                                end
-                                NONBSSET = setdiff(tranBSs,BSSET);
-                                BLOCKEDBSSET = [];
-                                % Now that we randonly selected the BSs that we
-                                % start with, we should check if they will be up
-                                % after 40ms.
-                                BSafterRecovery = 0 ;
-                                BSSET_copy = BSSET;
-                                for indBS = 1:length(BSSET)
-                                    last_time_index = find(dataBS{BSSET(indBS)}(1,:)<=timestamp,1,'last');
-                                    last_time_blocked = dataBS{BSSET(indBS)}(1,last_time_index);
-                                    last_blockage_dur = dataBS{BSSET(indBS)}(2,last_time_index);
-                                    if last_time_blocked + last_blockage_dur >= timestamp
-                                        actions = [actions struct('timeinstance',{last_time_blocked + last_blockage_dur},'BSindex',{BSSET(indBS)},'fnc',{'recover'})];  % add it again to NONBSSET when blockage ends
-                                        actions = [actions struct('timeinstance',{timestamp + dt + w},'BSindex',{1},'fnc',{'add'})];
-                                        old_bs = BSSET(indBS);
-                                        BLOCKEDBSSET = [BLOCKEDBSSET old_bs]; 
-                                        BSSET_copy = setdiff(BSSET_copy,old_bs);
-                                    else
-                                        succ = 1;
-                                        BSafterRecovery = BSafterRecovery + 1;  % we may not need this value, but if it is greater than 0, then we will have connectivity after RLF recovery 
-                                    end         
-                                end
-                                if BSafterRecovery > 0
-                                    blockage_duration(end) = timestamp - blockTime; % the blockage is ended!
-                                    actions = [actions struct('timeinstance',{timestamp},'BSindex',{100},'fnc',{'nextBlock'})]; % this is a trick to bypass next iteration actions 'add' and 'recover' 
-                                else
-                                    timestamp = timestamp + RLF_timer + RLF_recovery;
-                                end 
-                            end 
-                        end 
-
-
                     end       
                 end 
 
