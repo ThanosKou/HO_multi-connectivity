@@ -61,8 +61,8 @@ simTime = BS_input.SIMULATION_TIME; %sec Total Simulation time
 mu = BS_input.MU; %Expected bloc dur =1/mu
 conDegree = BS_input.DEGREE_CONNECTIVITY;
 
-RLF_timer = 999; %(sec) time to declare RLF
-RLF_recovery = 999; %(sec) time to exit RLF and establish a new link
+RLF_timer = 0.03; %(sec) time to declare RLF
+RLF_recovery = 0.04; %(sec) time to exit RLF and establish a new link
 
 dataBS = cell(nT,1); 
 %dataBS contain array of timestamps of blocker arrival for all BSs,
@@ -163,7 +163,9 @@ for indDisc=1:length(discovery_time)
                 %timestamp = actions(action_index).timeinstance;  % timestamp of next action
 
                 if strcmp(actions(action_index).fnc,'add') % if next action is "add"
-                    if ~isempty(NONBSSET) % there are more BSs in the nonBSset          
+                    if ~isempty(NONBSSET) % there are more BSs in the nonBSset 
+                        freeAntennas = conDegree - length(BSSET);
+                        hand_time = min(exprnd(1/(dt+w),1,min(freeAntennas,length(NONBSSET))));
                         newBS = choose(NONBSSET); % pick a random BS and add it to the set 
                         % Need to check if this BS is currently blocked
                         last_time_index = find(dataBS{newBS}(1,:)<=timestamp,1,'last');
@@ -174,7 +176,7 @@ for indDisc=1:length(discovery_time)
                             % again in the next dt
                             %BLOCKEDBSSET = [BLOCKEDBSSET newBS];
                             %NONBSSET = setdiff(NONBSSET,newBS);
-                            actions = [actions struct('timeinstance',{timestamp + dt + w},'BSindex',{1},'fnc',{'add'})]; % add a new BS to BSSET
+                            actions = [actions struct('timeinstance',{timestamp + hand_time},'BSindex',{1},'fnc',{'add'})]; % add a new BS to BSSET
                             %actions = [actions struct('timeinstance',{dataBS{newBS}(1,tt(newBS))},'BSindex',{newBS},'fnc',{'nextBlock'})];
                             actions = [actions struct('timeinstance',{last_time_blocked + last_blockage_dur},'BSindex',{newBS},'fnc',{'recover'})];  % add it again to NONBSSET when blockage ends
                         else
@@ -184,9 +186,6 @@ for indDisc=1:length(discovery_time)
         %                         end
                                %blockage_duration(end) = timestamp - blockage_duration(end); 
                             %end 
-                            if isempty(BSSET) % if BSSET was empty and we add a BS, then we the blockage period ends
-                                blockage_duration(end) = timestamp - blockage_duration(end);
-                            end 
                             BSSET = [BSSET newBS]; 
                             BS_state_iter{end+1} = timestamp;
                             BS_state_iter{end+1} = BSSET; % for throughput calculation
@@ -264,7 +263,12 @@ for indDisc=1:length(discovery_time)
                         BS_state_iter{end} = 0;
                     end
                     BS_state_iter{end+1} = BSSET; % as soon as its blocked, it does not contribute to throughput
-                    actions = [actions struct('timeinstance',{servBS(3,old_bs)},'BSindex',{old_bs},'fnc',{'add'})]; % add a new BS to BSSET
+                    
+                    freeAntennas = conDegree - length(BSSET);
+                    hand_time = min(exprnd(1/(dt+w),1,min(freeAntennas,length(NONBSSET))));
+                    hand_timestamp = servBS(1,old_bs) + hand_time;
+                    
+                    actions = [actions struct('timeinstance',{hand_timestamp},'BSindex',{old_bs},'fnc',{'add'})]; % add a new BS to BSSET, BS_index here is the number of free antenna elements
                     actions = [actions struct('timeinstance',{servBS(4,old_bs)},'BSindex',{old_bs},'fnc',{'recover'})];  % add it again to NONBSSET when blockage ends
 
                     if ~isempty(A(BSSET))
@@ -277,13 +281,9 @@ for indDisc=1:length(discovery_time)
                     else
                         blockage_duration = [blockage_duration timestamp];
                         block_instance = [block_instance timestamp]; % useful to calculate throughput
+                        blockage_duration(end) = timestamp - blockage_duration(end);
                     end       
                 end 
-
-                %actions = [actions struct('timestamp',{blockTime},'BSindex',{blockedBS},'function',{'remove'})];
-
-                % The next two actions need to be repeated every time a BS is blocked
-
             end 
         end 
         %%Evaluate frequency and average duration of blockage
