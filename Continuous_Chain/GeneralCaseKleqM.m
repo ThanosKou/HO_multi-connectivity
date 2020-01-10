@@ -1,7 +1,25 @@
-clear;clc;
-M = 9;
-K = 4;
+clear;
+M = 5;
+K = 3;
 syms a w u
+
+% 
+% V = 1; %velocity of blocker m/s
+% lambda_B = [0.01 0.1];
+% lambda_BS = [200,300,400,500]*10-6;
+% hb = 1.8; %height blocker
+% hr = 1.4; %height receiver (UE)
+% ht = 5; %height transmitter (BS)
+% frac = (hb-hr)/(ht-hr);
+% simTime = 4*60*60; %sec Total Simulation time
+% tstep = 0.0001; %(sec) time step
+% mu = 2; %Expected bloc dur =1/mu sec
+% R = 100; %m Radius
+% C = 2/pi*V*lambda_B*frac;
+% a = C(1)*2*R/3;
+% u=mu;
+% w=1000./[10, 20, 30, 40, 200, 1000];
+% w=w(1);
 
 %% Create all the states
 index = 0;
@@ -13,6 +31,7 @@ for idxM = 0:M
         chain_states(index) = State(idxM,idxK,index,M,K);
     end
 end
+
 num_states = index;
 
 % %% Compute state transitions
@@ -36,7 +55,7 @@ for state = chain_states
     end
     if ~isempty(up_side_state)
         target_idx =  up_side_state.index;
-        MM(target_idx,state_idx) = min(K,sl) * w;
+        MM(target_idx,state_idx) = min(K-sr,sl) * w;
     end
     if ~isempty(down_right_side_state)
         target_idx =  down_right_side_state.index;
@@ -53,7 +72,7 @@ B = zeros(num_states+1,1);
 B(num_states+1)=1;
 
 tic;
-X = linsolve(MM,B);
+X = mldivide(MM,B);
 toc;
 
 P_os = simplify(sum(X([chain_states.right]==0)));
