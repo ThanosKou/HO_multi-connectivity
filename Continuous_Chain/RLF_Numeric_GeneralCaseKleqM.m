@@ -9,14 +9,14 @@ mu = 2; %Expected bloc dur =1/mu sec
 u = mu;
 R = 100; %m Radius
 lambda_B = [0.01 0.1];
-C = 2/pi*V.*lambda_B*frac;
+C = 2*V*lambda_B*frac/3;
 
 
 lambda_BS = [200 300 400 500]*10^(-6); %densityBS
 density_limits = [23,29,35,40];
 K_list = [1,2,3,4];                      % Degree of Connectivity
 w_list = 1000./[10,15,25,30,70,200,1000];      %Connection establishment times
-a_list = C.*2*R/3;                       %Blocker Arrivals
+a_list = C*2*R/3;                       %Blocker Arrivals
 
 P_OS = zeros(length(lambda_BS),length(K_list),length(w_list),length(a_list));
 
@@ -33,8 +33,6 @@ for indBS=1:length(lambda_BS)
                 w = w_list(indW);
                 for indA = 1:length(a_list)
                     a = a_list(indA);
-                    
-                    
                     index = 0;
                     for idxM = 0:M
                         K_lim = min(K,idxM);
@@ -86,13 +84,13 @@ for indBS=1:length(lambda_BS)
                                 target_idx =  right_side_state.index;
                                 MM(target_idx,state_idx) = (sl-sr)*a;
                             end
-                            if ~isempty(left_side_state)
-                                target_idx =  left_side_state.index;
-                                MM(target_idx,state_idx) = (M-sl) * u;
-                            end
                             if ~isempty(top_left_side_state)
                                 target_idx =  top_left_side_state.index;
                                 MM(target_idx,state_idx) =  u;
+                            end
+                            if ~isempty(left_side_state)
+                                target_idx =  left_side_state.index;
+                                MM(target_idx,state_idx) = (M-sl - 1) * u;
                             end
                             if ~isempty(down_side_state)
                                 target_idx =  down_side_state.index;
