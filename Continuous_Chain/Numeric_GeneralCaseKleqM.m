@@ -15,7 +15,7 @@ C = 2/pi*V.*lambda_B*frac;
 lambda_BS = [200 300 400 500]*10^(-6); %densityBS
 density_limits = [23,29,35,40];
 K_list = [1,2,3,4];                      % Degree of Connectivity
-w_list = 1000./[10,15,25,30,200,1000];      %Connection establishment times
+w_list = 1000./[10,15,25,30,70,200,1000];      %Connection establishment times
 a_list = C.*2*R/3;                       %Blocker Arrivals
 
 P_OS = zeros(length(lambda_BS),length(K_list),length(w_list),length(a_list));
@@ -63,7 +63,11 @@ for indBS=1:length(lambda_BS)
                         end
                         if ~isempty(up_side_state)
                             target_idx =  up_side_state.index;
-                            MM(target_idx,state_idx) = min(K,sl) * w;
+%                             if sr==0
+%                                 MM(target_idx,state_idx) = max(1000/70 , min(K-sr,sl) * w);
+%                             else
+                                MM(target_idx,state_idx) = min(K-sr,sl) * w;
+%                             end
                         end
                         if ~isempty(down_right_side_state)
                             target_idx =  down_right_side_state.index;
@@ -78,9 +82,6 @@ for indBS=1:length(lambda_BS)
                     MM(num_states+1,:) = ones(1,num_states);
                     B = zeros(num_states+1,1);
                     B(num_states+1)=1;
-                    
-                    
-                    
                     X = mldivide(MM,B);
                     disp(P_M * sum(X([chain_states.right]==0)))
                     P_OS(indBS,indK,indW,indA) = P_OS(indBS,indK,indW,indA) + P_M * sum(X([chain_states.right]==0));
@@ -92,4 +93,9 @@ for indBS=1:length(lambda_BS)
     end
 end
 
+
+string = ['Numerical-Results-No-Self-Blockage'];
+description = 'P_OS is a matrix where first indexing element is for different BS densities, second indexing element is for K connectivity, third indexing is for W the time to initiate handover, and the fourth indexing is for different blocker densities.';
+
+save(string,'description','P_OS','lambda_BS','K_list','w_list','a_list');
 
