@@ -55,7 +55,7 @@ for state = chain_states
     end
     if ~isempty(up_side_state)
         target_idx =  up_side_state.index;
-        MM(target_idx,state_idx) = min(K-sr,sl) * w;
+        MM(target_idx,state_idx) = min(K-sr,sl-sr) * w;
     end
     if ~isempty(down_right_side_state)
         target_idx =  down_right_side_state.index;

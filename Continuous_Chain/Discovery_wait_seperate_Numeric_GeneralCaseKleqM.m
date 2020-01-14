@@ -69,7 +69,7 @@ for indBS=1:length(lambda_BS)
                                 %                             if sr==0
                                 %                                 MM(target_idx,state_idx) = max(1000/70 , min(K-sr,sl) * w);
                                 %                             else
-                                MM(target_idx,state_idx) = min(K-sr,sl) * w;
+                                MM(target_idx,state_idx) = min(K-sr,sl-sr) * w;
                                 %                             end
                             end
                             if ~isempty(down_right_side_state)
