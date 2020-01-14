@@ -132,6 +132,7 @@ BS_state = {}; % includes available BS cells for all different discovery and pre
 output = {}; % includes available BS cells for all different discovery and preparation values
 
 for indDisc=1:length(discovery_time)
+    tic 
     for indPrep = 1:length(preparation_time)
         BSSET = randperm(nT,conDegree);
         NONBSSET = setdiff(tranBSs,BSSET);
@@ -172,27 +173,22 @@ for indDisc=1:length(discovery_time)
                         if last_time_blocked + last_blockage_dur >= timestamp
                             % it means that this BS is blocked, need to try
                             % again in the next dt
-                            %BLOCKEDBSSET = [BLOCKEDBSSET newBS];
-                            %NONBSSET = setdiff(NONBSSET,newBS);
-                            actions = [actions struct('timeinstance',{timestamp + dt + w},'BSindex',{1},'fnc',{'add'})]; % add a new BS to BSSET
-                            %actions = [actions struct('timeinstance',{dataBS{newBS}(1,tt(newBS))},'BSindex',{newBS},'fnc',{'nextBlock'})];
-                            actions = [actions struct('timeinstance',{last_time_blocked + last_blockage_dur},'BSindex',{newBS},'fnc',{'recover'})];  % add it again to NONBSSET when blockage ends
+                            BLOCKEDBSSET = [BLOCKEDBSSET newBS];
+                            NONBSSET = setdiff(NONBSSET,newBS);
+                            actions = [actions struct('timeinstance',{timestamp},'BSindex',{1},'fnc',{'add'})]; % add a different BS to BSSET
+                            actions = [actions struct('timeinstance',{dataBS{newBS}(1,tt(newBS))},'BSindex',{newBS},'fnc',{'nextBlock'})];
+                            actions = [actions struct('timeinstance',{last_time_blocked + last_blockage_dur + dt},'BSindex',{newBS},'fnc',{'recover'})];  % add it again to NONBSSET when blockage ends
                         else
-                            %if isempty(BSSET) 
-        %                         if (timestamp - blockage_duration(end)  < RLF_timer) % if it was empty and now a new BS is added, then it stops being blocked
-        %                             blockage_duration(end) = timestamp - blockage_duration(end);
-        %                         end
-                               %blockage_duration(end) = timestamp - blockage_duration(end); 
-                            %end 
+                            % new BS is available
                             if isempty(BSSET) % if BSSET was empty and we add a BS, then we the blockage period ends
                                 blockage_duration(end) = timestamp - blockage_duration(end);
                             end 
                             BSSET = [BSSET newBS]; 
-                            BS_state_iter{end+1} = timestamp;
-                            BS_state_iter{end+1} = BSSET; % for throughput calculation
-                            if isempty(BS_state_iter{end})
-                                BS_state_iter{end} = 0;
-                            end
+                            %BS_state_iter{end+1} = timestamp;
+                            %BS_state_iter{end+1} = BSSET; % for throughput calculation
+                            %if isempty(BS_state_iter{end})
+                            %    BS_state_iter{end} = 0;
+                            %end
                             NONBSSET = setdiff(NONBSSET,newBS);
 
                             % need to take care of the possibility that the new BS
@@ -202,6 +198,21 @@ for indDisc=1:length(discovery_time)
                                 actions = [actions struct('timeinstance',{dataBS{newBS}(1,tt(newBS))},'BSindex',{newBS},'fnc',{'nextBlock'})];
                             end 
                         end
+                    else % we need to add a new BS but all BSs in NONBSSET are blocked: need to wait until the first of them recovers
+                        recov_ind = {actions.fnc};
+                        recov_tim = {actions.timeinstance};
+                        recov_BS = {actions.BSindex};
+                        recov_times = [];
+                        for i=1:length(recov_ind)
+                            if strcmp(recov_ind{i},'recover')
+                                recov_times = [recov_times recov_tim{i}];
+                                recovered_BS = recov_BS{i};
+                            end 
+                        end
+                        if ~isempty(recov_times) 
+                            rec_time = min(recov_times);
+                            actions = [actions struct('timeinstance',{rec_time + w},'BSindex',{old_bs},'fnc',{'add'})]; % add a new BS to BSSET
+                        end 
                     end
 
                     actions(action_index) = []; % remove the current add action
@@ -234,8 +245,8 @@ for indDisc=1:length(discovery_time)
 
                             servBS(1,indBS) = dataBS{indBS}(1,tt(indT)); % blockage times for serving BS
                             servBS(2,indBS) = dataBS{indBS}(2,tt(indT)); % blockage duration
-                            servBS(3,indBS) = servBS(1,indBS) + dt + w; % UE cannot change BS until that time
-                            servBS(4,indBS) = servBS(1,indBS) + servBS(2,indBS); % BS is again up at this time
+                            servBS(3,indBS) = servBS(1,indBS) + w; % UE cannot change BS until that time
+                            servBS(4,indBS) = servBS(1,indBS) + servBS(2,indBS) + dt; % BS is again up at this time and enters NONBSSET
                         else
                             finishedBS = finishedBS + 1; % there are no more blockages left for this BS
                         %   timestamp = simTime;
@@ -259,11 +270,11 @@ for indDisc=1:length(discovery_time)
                     old_bs = BSSET(blockedBS);
                     BLOCKEDBSSET = [BLOCKEDBSSET old_bs]; 
                     BSSET = setdiff(BSSET,old_bs); % remove the blocked BS from the list and then add it to blocked set
-                    BS_state_iter{end+1} = servBS(1,old_bs);
-                    if isempty(BS_state_iter{end})
-                        BS_state_iter{end} = 0;
-                    end
-                    BS_state_iter{end+1} = BSSET; % as soon as its blocked, it does not contribute to throughput
+                    %BS_state_iter{end+1} = servBS(1,old_bs);
+                    %if isempty(BS_state_iter{end})
+                    %    BS_state_iter{end} = 0;
+                    %end
+                    %BS_state_iter{end+1} = BSSET; % as soon as its blocked, it does not contribute to throughput
                     actions = [actions struct('timeinstance',{servBS(3,old_bs)},'BSindex',{old_bs},'fnc',{'add'})]; % add a new BS to BSSET
                     actions = [actions struct('timeinstance',{servBS(4,old_bs)},'BSindex',{old_bs},'fnc',{'recover'})];  % add it again to NONBSSET when blockage ends
 
@@ -274,7 +285,7 @@ for indDisc=1:length(discovery_time)
                             actions = actions(find(~strcmp(cellstr(ll(3,:)),'nextBlock')));
                         end    
                         actions = [actions struct('timeinstance',{blockTimeNext},'BSindex',{100},'fnc',{'nextBlock'})]; % next BS to be blocked, if the new ones do not get blocked before
-                    else
+                    else % RLF happens
                         blockage_duration = [blockage_duration timestamp];
                         block_instance = [block_instance timestamp]; % useful to calculate throughput
                     end       
@@ -308,11 +319,13 @@ for indDisc=1:length(discovery_time)
 
         %%Return now
         output{end+1}= [probBl,RLFprob,avgDur]';
-        blockage_Stat = [block_inst',block_dur'];
-        dlmwrite(strcat('Blockage_Stat','_',num2str(BS_density),'_',num2str(conDegree),'_',num2str(BL_density),'_',num2str(dt*1000),'_',num2str(w*1000),'_',num2str(ITERATION),'.csv'),blockage_Stat,'delimiter',',','precision',7)
+        %blockage_Stat = [block_inst',block_dur'];
+        %dlmwrite(strcat('Blockage_Stat','_',num2str(BS_density),'_',num2str(conDegree),'_',num2str(BL_density),'_',num2str(dt*1000),'_',num2str(w*1000),'_',num2str(ITERATION),'.csv'),blockage_Stat,'delimiter',',','precision',7)
         block_inst = [];block_dur = [];
-        save(strcat('BS_Connection_Stat_Time','_',num2str(BS_density),'_',num2str(conDegree),'_',num2str(BL_density),'_',num2str(dt*1000),'_',num2str(w*1000),'_',num2str(ITERATION),'.mat'),'BS_state_iter')
-        BS_state_iter = {};
+        %save(strcat('BS_Connection_Stat_Time','_',num2str(BS_density),'_',num2str(conDegree),'_',num2str(BL_density),'_',num2str(dt*1000),'_',num2str(w*1000),'_',num2str(ITERATION),'.mat'),'BS_state_iter')
+        %BS_state_iter = {};
     end 
+    toc
 end 
+
 end
