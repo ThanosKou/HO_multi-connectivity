@@ -134,6 +134,7 @@ output = {}; % includes available BS cells for all different discovery and prepa
 for indDisc=1:length(discovery_time)
     tic 
     for indPrep = 1:length(preparation_time)
+        idle_antennas = 0;
         BSSET = randperm(nT,conDegree);
         NONBSSET = setdiff(tranBSs,BSSET);
         BLOCKEDBSSET = [];
@@ -151,7 +152,6 @@ for indDisc=1:length(discovery_time)
         block_instance = [];
 
         while timestamp < simTime
-
             if ~isempty(actions)
                 l = struct2cell(actions);
                 [x,action_index] = min(cell2mat(l(1,:))); % find next action 
@@ -199,20 +199,7 @@ for indDisc=1:length(discovery_time)
                             end 
                         end
                     else % we need to add a new BS but all BSs in NONBSSET are blocked: need to wait until the first of them recovers
-                        recov_ind = {actions.fnc};
-                        recov_tim = {actions.timeinstance};
-                        recov_BS = {actions.BSindex};
-                        recov_times = [];
-                        for i=1:length(recov_ind)
-                            if strcmp(recov_ind{i},'recover')
-                                recov_times = [recov_times recov_tim{i}];
-                                recovered_BS = recov_BS{i};
-                            end 
-                        end
-                        if ~isempty(recov_times) 
-                            rec_time = min(recov_times);
-                            actions = [actions struct('timeinstance',{rec_time + w},'BSindex',{old_bs},'fnc',{'add'})]; % add a new BS to BSSET
-                        end 
+                        idle_antennas = idle_antennas + 1;
                     end
 
                     actions(action_index) = []; % remove the current add action
@@ -221,6 +208,10 @@ for indDisc=1:length(discovery_time)
                     recoveredBS = actions(action_index).BSindex;
                     NONBSSET = [NONBSSET recoveredBS];
                     BLOCKEDBSSET = setdiff(BLOCKEDBSSET,recoveredBS);
+                    if idle_antennas > 0 % we have an empty antenna so we should cover it:
+                         actions = [actions struct('timeinstance',{timestamp + w},'BSindex',{1},'fnc',{'add'})]; % add a new BS to BSSET
+                         idle_antennas = idle_antennas - 1;
+                    end 
                     actions(action_index) = [];
                     continue
                 else 
@@ -286,8 +277,8 @@ for indDisc=1:length(discovery_time)
                         end    
                         actions = [actions struct('timeinstance',{blockTimeNext},'BSindex',{100},'fnc',{'nextBlock'})]; % next BS to be blocked, if the new ones do not get blocked before
                     else % RLF happens
-                        blockage_duration = [blockage_duration timestamp];
-                        block_instance = [block_instance timestamp]; % useful to calculate throughput
+                        blockage_duration = [blockage_duration blockTime];
+                        %block_instance = [block_instance blockTime]; % useful to calculate throughput
                     end       
                 end 
 
@@ -306,10 +297,10 @@ for indDisc=1:length(discovery_time)
         % probAllBl = sum(allBl)*tstep/simTime;
 
         blockage_duration=blockage_duration(2:end);
-        block_instance = block_instance(2:end);
+        %block_instance = block_instance(2:end);
 
         block_dur = blockage_duration(blockage_duration<1);
-        block_inst = block_instance(blockage_duration<1);
+        %block_inst = block_instance(blockage_duration<1);
 
         avgDur = mean(block_dur);
         probBl = sum(block_dur)/simTime;
