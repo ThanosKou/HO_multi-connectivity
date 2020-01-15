@@ -173,13 +173,10 @@ for indDisc=1:length(discovery_time)
                             BLOCKEDBSSET = [BLOCKEDBSSET newBS];
                             NONBSSET = setdiff(NONBSSET,newBS);
                             actions = [actions struct('timeinstance',{timestamp},'BSindex',{1},'fnc',{'add'})]; % add a new BS to BSSET
-                            actions = [actions struct('timeinstance',{dataBS{newBS}(1,tt(newBS))},'BSindex',{newBS},'fnc',{'nextBlock'})];
                             actions = [actions struct('timeinstance',{last_time_blocked + last_blockage_dur + dt},'BSindex',{newBS},'fnc',{'recover'})];  % add it again to NONBSSET when blockage ends
                         else
-                            if isempty(BSSET) 
-                                if (timestamp - blockage_duration(end)  < RLF_timer) % if it was empty and now a new BS is added, then it stops being blocked
-                                    blockage_duration(end) = timestamp - blockage_duration(end);
-                                end
+                            if isempty(BSSET) % it was empty, thus we were out-of-service 
+                                blockage_duration(end) = timestamp - blockage_duration(end);
                             end 
                             BSSET = [BSSET newBS]; 
                             %BS_state_iter{end+1} = timestamp;
@@ -278,10 +275,9 @@ for indDisc=1:length(discovery_time)
                         % the last available BS got blocked 
                         blockage_duration = [blockage_duration blockTime];
                         block_instance = [block_instance blockTime]; % useful to calculate throughput
-                        if servBS(4,old_bs) < timestamp + RLF_timer % then the last BS recovers before entering RLF
+                        if servBS(4,old_bs) <= timestamp + RLF_timer % then the last BS recovers before entering RLF
                             blockage_duration(end) = servBS(4,old_bs) - blockage_duration(end);
                         else % not saved, enter RLF
-                            %actions = []; % clean all the actions and choose new BSs after 40ms
                             recov_ind = {actions.fnc};
                             recov_tim = {actions.timeinstance};
                             recov_BS = {actions.BSindex};

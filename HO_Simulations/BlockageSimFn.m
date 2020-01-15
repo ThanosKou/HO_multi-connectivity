@@ -176,7 +176,6 @@ for indDisc=1:length(discovery_time)
                             BLOCKEDBSSET = [BLOCKEDBSSET newBS];
                             NONBSSET = setdiff(NONBSSET,newBS);
                             actions = [actions struct('timeinstance',{timestamp},'BSindex',{1},'fnc',{'add'})]; % add a different BS to BSSET
-                            actions = [actions struct('timeinstance',{dataBS{newBS}(1,tt(newBS))},'BSindex',{newBS},'fnc',{'nextBlock'})];
                             actions = [actions struct('timeinstance',{last_time_blocked + last_blockage_dur + dt},'BSindex',{newBS},'fnc',{'recover'})];  % add it again to NONBSSET when blockage ends
                         else
                             % new BS is available
