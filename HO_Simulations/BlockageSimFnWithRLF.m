@@ -1,4 +1,4 @@
-function [output] = BlockageSimFn(s_mobility,BS_input)
+function [output] = BlockageSimFnWithRLF(s_mobility,BS_input)
 % Written by Thanos Koutsaftis
 % Used template of Ish Kumar Jain
 % NYU Tandon School of Engineering
@@ -46,7 +46,7 @@ tempInd =  find(alphaTorig>=omega); %These BSs are not blocked by self-blockage
 xT = rT(tempInd).*cos(alphaTorig(tempInd));%location of APs (distance)
 yT = rT(tempInd).*sin(alphaTorig(tempInd));%location of APs (angle)
 nT = length(tempInd); % number of BS not blocked by self-blockage
-nT=0;
+
 if(nT==0)
     output=[0,0,0];   
     return;
@@ -86,7 +86,7 @@ for indB = 1:nB %for every blocker
             timeToBl = distance_travelled/velocity; %time to blocking event
             timestampBl = start_time+timeToBl; %timestamp of blockage event
             if(distance_travelled>=0 && timestampBl<=simTime)
-                                data{indB,indT} = [data{indB,indT},start_time+blockage_time];
+                               % data{indB,indT} = [data{indB,indT},start_time+blockage_time];
                 dataBS{indT} = [dataBS{indT}, timestampBl];
                 
             end
@@ -282,7 +282,7 @@ for indDisc=1:length(discovery_time)
                             recov_tim = {actions.timeinstance};
                             recov_BS = {actions.BSindex};
                             recov_times = [];
-                            minn = 10000;
+                            minn = 1000000;
                             for i=1:length(recov_ind)
                                 if strcmp(recov_ind{i},'recover')
                                     if recov_tim{i} < minn
@@ -292,7 +292,7 @@ for indDisc=1:length(discovery_time)
                                     end 
                                 end 
                             end
-                            if ~isempty(recov_times) 
+                            if minn < 1000000 
                                 actions = [actions struct('timeinstance',{recov_time + w + RLF_recovery},'BSindex',{recovered_BS},'fnc',{'add'})]; % add a new BS to BSSET
                                 % At time recov_time + w, the BS will have
                                 % been moved to the NONBSSET, so the add
@@ -306,7 +306,6 @@ for indDisc=1:length(discovery_time)
                     end       
                 end 
 
-                actions = [actions struct('timestamp',{blockTime},'BSindex',{blockedBS},'function',{'remove'})];
 
                 %The next two actions need to be repeated every time a BS is blocked
 

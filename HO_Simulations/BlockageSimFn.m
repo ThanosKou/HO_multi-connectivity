@@ -281,8 +281,6 @@ for indDisc=1:length(discovery_time)
                     end       
                 end 
 
-                %actions = [actions struct('timestamp',{blockTime},'BSindex',{blockedBS},'function',{'remove'})];
-
                 % The next two actions need to be repeated every time a BS is blocked
 
             end 
