@@ -9,7 +9,7 @@ mu = 2; %Expected bloc dur =1/mu sec
 u = mu;
 R = 100; %m Radius
 lambda_B = [0.01 0.1];
-C = 2/pi*V.*lambda_B*frac;
+C = 2*V.*lambda_B*frac/pi;
 
 
 lambda_BS = [200 300 400 500]*10^(-6); %densityBS
