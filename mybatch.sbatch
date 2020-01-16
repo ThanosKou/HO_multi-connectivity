@@ -7,12 +7,18 @@
 #SBATCH --job-name=myTest
 #SBATCH --mail-type=END
 #SBATCH --mail-user=apk337@nyu.edu
-#SBATCH --output=apk_%j.out
-  
+#SBATCH --output=outLogs/%a_%A.out
+#SBATCH --error=errLogs/%a_%A.err
+
+
 module purge
 module load matlab/2019a
 
 RUNDIR=$SCRATCH/HO_multi-connectivity/HO_Simulations/
 cd $RUNDIR
+
+mkdir -p errLogs
+mkdir -p outLogs
+
 
 matlab -nodisplay -nodesktop -r "run SimulationLOS.m"
