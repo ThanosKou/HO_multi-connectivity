@@ -92,7 +92,7 @@ for indBS = 1:length(densityBS)
                 'ITR',aID);
 
                 %BlockageSimFn function is written by Ish Jain
-                [output] = BlockageSimFn(s_mobility{indB},BS_input);
+                [output] = BlockageSimFnWithRLF(s_mobility{indB},BS_input);
                 %discovery = [1 5 20];
                 %preparation = [10 20];
                 %indCell = 0; 
