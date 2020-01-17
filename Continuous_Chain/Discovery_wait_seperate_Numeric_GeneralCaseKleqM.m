@@ -9,7 +9,7 @@ mu = 2; %Expected bloc dur =1/mu sec
 u = mu;
 R = 100; %m Radius
 lambda_B = [0.01 0.1];
-C = 2/pi*V.*lambda_B*frac;
+C = 2*V.*lambda_B*frac/pi;
 
 
 lambda_BS = [200 300 400 500]*10^(-6); %densityBS
@@ -98,7 +98,7 @@ for indBS=1:length(lambda_BS)
 end
 
 
-string = ['Numerical-Results-No-Self-Blockage'];
+string = ['NoRLF_Numerical-Results-No-Self-Blockage_given_coverage'];
 description = 'P_OS is a matrix where first indexing element is for different BS densities, second indexing element is for K connectivity, third indexing is for W the time to initiate handover, fourth indexing is for Dt the time to discover BS, and the fifth indexing is for different blocker densities.';
 
 save(string,'description','P_OS','lambda_BS','K_list','w_list','a_list');
