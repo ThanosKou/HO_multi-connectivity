@@ -137,7 +137,7 @@ for indBS=1:length(lambda_BS)
                         X = mldivide(MM,B);
                         disp(P_M * (sum(X(([chain_states.right]==0))) + sum(X(([chain_states.right]==-1)))))
                         P_OS(indBS,indK,indW,indDt,indA) = P_OS(indBS,indK,indW,indDt,indA) + P_M * (sum(X(([chain_states.right]==0))) + sum(X(([chain_states.right]==-1))));
-                        
+%                         P_OS(indBS,indK,indW,indDt,indA) =(sum(X(([chain_states.right]==0))) + sum(X(([chain_states.right]==-1))));
                         clearvars chain_states
                     end
                 end
@@ -155,5 +155,5 @@ end
 string = ['RLF_Numerical-Results-No-Self-Blockage_given_coverage'];
 description = 'P_OS is a matrix where first indexing element is for different BS densities, second indexing element is for K connectivity, third indexing is for W the time to initiate handover, fourth indexing is for Dt the time to discover BS, and the fifth indexing is for different blocker densities.';
 
-save(string,'description','P_OS','lambda_BS','K_list','w_list','a_list');
+save(string,'description','P_OS','lambda_BS','K_list','w_list','dt_list','a_list');
 
