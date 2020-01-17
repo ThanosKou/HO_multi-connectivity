@@ -170,7 +170,7 @@ for indDisc=1:length(discovery_time)
                         last_time_index = find(dataBS{newBS}(1,:)<=timestamp,1,'last');
                         last_time_blocked = dataBS{newBS}(1,last_time_index);
                         last_blockage_dur = dataBS{newBS}(2,last_time_index);
-                        if last_time_blocked + last_blockage_dur >= timestamp
+                        if last_time_blocked + last_blockage_dur + dt>= timestamp
                             % it means that this BS is blocked, need to try
                             % again in the next dt
                             BLOCKEDBSSET = [BLOCKEDBSSET newBS];
@@ -265,7 +265,8 @@ for indDisc=1:length(discovery_time)
                     %    BS_state_iter{end} = 0;
                     %end
                     %BS_state_iter{end+1} = BSSET; % as soon as its blocked, it does not contribute to throughput
-                    actions = [actions struct('timeinstance',{servBS(3,old_bs)},'BSindex',{old_bs},'fnc',{'add'})]; % add a new BS to BSSET
+                    actions = [actions struct('timeinstance',{servBS(3,old_bs)},'BSindex',{old_bs},'fnc',{'add'})];
+                        % add a new BS to BSSET
                     actions = [actions struct('timeinstance',{servBS(4,old_bs)},'BSindex',{old_bs},'fnc',{'recover'})];  % add it again to NONBSSET when blockage ends
 
                     if ~isempty(A(BSSET))
@@ -293,23 +294,23 @@ for indDisc=1:length(discovery_time)
         % avgDur = sum(allBl)*tstep/sum(diff(allBl)>0);
         % probAllBl = sum(allBl)*tstep/simTime;
 
-        blockage_duration=blockage_duration(2:end);
+        %blockage_duration=blockage_duration(2:end);
         %block_instance = block_instance(2:end);
 
         block_dur = blockage_duration(blockage_duration<1);
         %block_inst = block_instance(blockage_duration<1);
 
-        avgDur = mean(block_dur);
-        probBl = sum(block_dur)/simTime;
-        RLFprob = sum(blockage_duration(blockage_duration<1 & blockage_duration>0.03))/simTime;
+        avgDur = mean(blockage_duration);
+        probBl = sum(blockage_duration)/simTime;
+        %RLFprob = sum(blockage_duration(blockage_duration<1 & blockage_duration>0.03))/simTime;
 
         %avgFreq = length(blockage_duration)/simTime;
 
         %%Return now
-        output{end+1}= [probBl,RLFprob,avgDur]';
+        output{end+1}= [probBl;avgDur];
         %blockage_Stat = [block_inst',block_dur'];
         %dlmwrite(strcat('Blockage_Stat','_',num2str(BS_density),'_',num2str(conDegree),'_',num2str(BL_density),'_',num2str(dt*1000),'_',num2str(w*1000),'_',num2str(ITERATION),'.csv'),blockage_Stat,'delimiter',',','precision',7)
-        block_inst = [];block_dur = [];
+        %block_inst = [];block_dur = [];
         %save(strcat('BS_Connection_Stat_Time','_',num2str(BS_density),'_',num2str(conDegree),'_',num2str(BL_density),'_',num2str(dt*1000),'_',num2str(w*1000),'_',num2str(ITERATION),'.mat'),'BS_state_iter')
         %BS_state_iter = {};
     end 

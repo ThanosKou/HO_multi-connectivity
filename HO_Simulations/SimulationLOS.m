@@ -38,7 +38,7 @@ discovery = [1 5 20 200 1000]*10^(-3);
 preparation = [10 20]*10^(-3);
 densityBL = [0.01 0.1];
 densityBS = [200 300 400 500]*10^(-6);
-connectivity = [1 2 3 4 ];
+connectivity = [1 2 3 4];
 
 nTorig = densityBS*pi*R^2;
 omega = pi/3;
@@ -63,6 +63,7 @@ end
 
 for indBS = 1:length(densityBS)
     nT = poissrnd(densityBS(indBS)*pi*R^2);
+    %nT = floor(densityBS(indBS)*pi*R^2);
     rT = R*sqrt(rand(nT,1)); %location of APs (distance from origin)
     alphaT = 2*pi*rand(nT,1);%location of APs (angle from x-axis)
     BS_pos_stat = [rT,alphaT];
@@ -92,7 +93,7 @@ for indBS = 1:length(densityBS)
                 'ITR',aID);
 
                 %BlockageSimFn function is written by Ish Jain
-                [output] = BlockageSimFnWithRLF(s_mobility{indB},BS_input);
+                [output] = BlockageSimFn(s_mobility{indB},BS_input);
                 %discovery = [1 5 20];
                 %preparation = [10 20];
                 %indCell = 0; 
@@ -110,7 +111,7 @@ for indBS = 1:length(densityBS)
 end 
 %Use the code processData9.m to analyze and plot the results
 %csvwrite(strcat('output',num2str(aID),'.csv'),finaldata)
-dlmwrite(strcat('output','_',num2str(aID),'.csv'),finaldata,'delimiter',',','precision',7)
+save(strcat('output','_',num2str(aID),'.mat'),'finaldata')
 %mkdir(strcat('SimulationResult','_',num2str(aID)))
 %movefile(strcat('*','_',num2str(aID),'.mat'),strcat('SimulationResult','_',num2str(aID)))
 %movefile(strcat('Blockage_Stat','*',num2str(aID),'.csv'),strcat('SimulationResult','_',num2str(aID)))
