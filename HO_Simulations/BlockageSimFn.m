@@ -115,7 +115,9 @@ BLOCKEDBSSET = [];
 for indT = 1:nT
     len =length(dataBS{indT});
     dataBS{indT}(2,:) =  exprnd(1/mu,1,len); % block duration
+    dataBS{indT}(3,:) = dataBS{indT}(2,:) + dataBS{indT}(1,:);
 end
+
 
 %% Thanos & Rajeev, FIBR work
 
@@ -157,27 +159,16 @@ for indDisc=1:length(discovery_time)
                     if ~isempty(NONBSSET) % there are more BSs in the nonBSset          
                         newBS = choose(NONBSSET); % pick a random BS and add it to the set 
                         % Need to check if this BS is currently blocked
-                        last_time_index = find(dataBS{newBS}(1,:)<=timestamp,1,'last');
-                        last_time_blocked = dataBS{newBS}(1,last_time_index);
-                        last_blockage_dur = dataBS{newBS}(2,last_time_index);
-                        if last_time_blocked + last_blockage_dur + dt >= timestamp
-                            % it means that this BS is blocked, need to try
-                            % again in the next dt
-                            BLOCKEDBSSET = [BLOCKEDBSSET newBS];
-                            NONBSSET = setdiff(NONBSSET,newBS);
-                            actions = [actions struct('timeinstance',{timestamp},'BSindex',{1},'fnc',{'add'})]; % add a different BS to BSSET
-                            actions = [actions struct('timeinstance',{last_time_blocked + last_blockage_dur + dt},'BSindex',{newBS},'fnc',{'recover'})];  % add it again to NONBSSET when blockage ends
-                        else
+                        numArrivals = sum(dataBS{newBS}(1,:) <= timestamp);
+                        numDepart = sum(dataBS{newBS}(3,:) <= timestamp);
+                        C = dataBS{newBS}(3,:);
+                        endBlockage = max(C(C < timestamp));
+                        if (numArrivals - numDepart) == 0 && (endBlockage + dt) <= timestamp
                             % new BS is available
                             if isempty(BSSET) % if BSSET was empty and we add a BS, then we the blockage period ends
                                 blockage_duration(end) = timestamp - blockage_duration(end);
                             end 
                             BSSET = [BSSET newBS]; 
-                            %BS_state_iter{end+1} = timestamp;
-                            %BS_state_iter{end+1} = BSSET; % for throughput calculation
-                            %if isempty(BS_state_iter{end})
-                            %    BS_state_iter{end} = 0;
-                            %end
                             NONBSSET = setdiff(NONBSSET,newBS);
 
                             % need to take care of the possibility that the new BS
@@ -186,7 +177,14 @@ for indDisc=1:length(discovery_time)
                                 tt(newBS) = find(dataBS{newBS}(1,:)>=timestamp,1,'first');
                                 actions = [actions struct('timeinstance',{dataBS{newBS}(1,tt(newBS))},'BSindex',{newBS},'fnc',{'nextBlock'})];
                             end 
-                        end
+                        else
+                            % it means that this BS is blocked, need to try
+                            % again in the next dt
+                            BLOCKEDBSSET = [BLOCKEDBSSET newBS];
+                            NONBSSET = setdiff(NONBSSET,newBS);
+                            actions = [actions struct('timeinstance',{timestamp},'BSindex',{1},'fnc',{'add'})]; % add a different BS to BSSET
+                            actions = [actions struct('timeinstance',{endBlockage + dt},'BSindex',{newBS},'fnc',{'recover'})];  % add it again to NONBSSET when blockage ends
+                        end 
                     else % we need to add a new BS but all BSs in NONBSSET are blocked: need to wait until the first of them recovers
                         idle_antennas = idle_antennas + 1;
                     end
