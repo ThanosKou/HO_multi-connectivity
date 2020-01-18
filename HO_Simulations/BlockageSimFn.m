@@ -30,9 +30,6 @@ function [output] = BlockageSimFn(s_mobility,BS_input)
 
 %----Play-with-values-here--------------------------------------
 wannaplot = BS_input.WANNAPLOT; %1;
-ITERATION = BS_input.ITR;
-BS_density = BS_input.BS_DENSITY;
-BL_density = BS_input.BL_Density;
 nB = BS_input.NUM_BL; %number of blokers
 nTorig = BS_input.Original_NUM_AP; %Original APs without considering self blockage
 rT =BS_input.LOC_AP_DISTANCE; %location of APs
@@ -60,9 +57,6 @@ simTime = BS_input.SIMULATION_TIME; %sec Total Simulation time
 %tstep = BS_input.TIME_STEP; %(sec) time step
 mu = BS_input.MU; %Expected bloc dur =1/mu
 conDegree = BS_input.DEGREE_CONNECTIVITY;
-
-RLF_timer = 999; %(sec) time to declare RLF
-RLF_recovery = 999; %(sec) time to exit RLF and establish a new link
 
 dataBS = cell(nT,1); 
 %dataBS contain array of timestamps of blocker arrival for all BSs,
@@ -118,6 +112,7 @@ BLOCKEDBSSET = [];
 for indT = 1:nT
     len =length(dataBS{indT});
     dataBS{indT}(2,:) =  exprnd(1/mu,1,len); % block duration
+    dataBS{indT}(3,:) =  dataBS{indT}(2,:) + dataBS{indT}(1,:); % block duration
 end
 
 %% Thanos & Rajeev, FIBR work
@@ -135,10 +130,6 @@ for indDisc=1:length(discovery_time)
     tic 
     for indPrep = 1:length(preparation_time)
         idle_antennas = 0;
-        BSSET = randperm(nT,conDegree);
-        NONBSSET = setdiff(tranBSs,BSSET);
-        BLOCKEDBSSET = [];
-        BS_state_iter = {};
         dt = discovery_time(indDisc);
         w = preparation_time(indPrep);
         servBS = zeros(4,nT);
