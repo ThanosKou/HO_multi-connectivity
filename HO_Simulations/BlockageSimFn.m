@@ -30,10 +30,7 @@ function [output] = BlockageSimFn(s_mobility,BS_input)
 
 %----Play-with-values-here--------------------------------------
 wannaplot = BS_input.WANNAPLOT; %1;
-<<<<<<< HEAD
 
-=======
->>>>>>> 6845028e955e40d35a17e44f191d4b0094408421
 nB = BS_input.NUM_BL; %number of blokers
 nTorig = BS_input.Original_NUM_AP; %Original APs without considering self blockage
 rT =BS_input.LOC_AP_DISTANCE; %location of APs
@@ -116,11 +113,7 @@ BLOCKEDBSSET = [];
 for indT = 1:nT
     len =length(dataBS{indT});
     dataBS{indT}(2,:) =  exprnd(1/mu,1,len); % block duration
-<<<<<<< HEAD
-    dataBS{indT}(3,:) = dataBS{indT}(2,:) + dataBS{indT}(1,:);
-=======
     dataBS{indT}(3,:) =  dataBS{indT}(2,:) + dataBS{indT}(1,:); % block duration
->>>>>>> 6845028e955e40d35a17e44f191d4b0094408421
 end
 
 
@@ -135,15 +128,9 @@ for indDisc=1:length(discovery_time)
     tic 
     for indPrep = 1:length(preparation_time)
         idle_antennas = 0;
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-=======
         BSSET = randperm(nT,conDegree);
         NONBSSET = setdiff(tranBSs,BSSET);
         BLOCKEDBSSET = [];
->>>>>>> 73a887dac4fbb2b9735fa18e5b1e8c1ae8825ce0
->>>>>>> 6845028e955e40d35a17e44f191d4b0094408421
         dt = discovery_time(indDisc);
         w = preparation_time(indPrep);
         servBS = zeros(4,nT);
