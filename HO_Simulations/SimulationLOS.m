@@ -40,7 +40,6 @@ densityBL = [0.01 0.1];
 densityBS = [200 300 400 500]*10^(-6);
 connectivity = [1 2 3 4];
 
-nTorig = densityBS*pi*R^2;
 omega = pi/3;
 
 s_input = cell(1,2);
@@ -63,11 +62,9 @@ end
 
 for indBS = 1:length(densityBS)
     nT = poissrnd(densityBS(indBS)*pi*R^2);
-    %nT = floor(densityBS(indBS)*pi*R^2);
     rT = R*sqrt(rand(nT,1)); %location of APs (distance from origin)
     alphaT = 2*pi*rand(nT,1);%location of APs (angle from x-axis)
     BS_pos_stat = [rT,alphaT];
-    %csvwrite(strcat('BS_Positions','_',num2str(densityBS(indBS)*10^6),'_',num2str(aID),'.csv'),BS_pos_stat)
     for indT = 1:length(connectivity)
         currConnec = connectivity(indT);
         for indB = 1:length(densityBL) %for all blockers
@@ -87,10 +84,7 @@ for indBS = 1:length(densityBS)
                 'LOC_AP_ANGLE',alphaT,...
                 'NUM_BL',nB,...
                 'DISCOVERY_TIME',discovery,...
-                'HO_PREP_TIME',preparation,...
-                'BS_DENSITY',densityBS(indBS)*10^6,...
-                'BL_Density',densityBL(indB)*100,...
-                'ITR',aID);
+                'HO_PREP_TIME',preparation);
 
                 %BlockageSimFn function is written by Ish Jain
                 [output] = BlockageSimFn(s_mobility{indB},BS_input);
