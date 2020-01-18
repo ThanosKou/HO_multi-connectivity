@@ -30,9 +30,7 @@ function [output] = BlockageSimFn(s_mobility,BS_input)
 
 %----Play-with-values-here--------------------------------------
 wannaplot = BS_input.WANNAPLOT; %1;
-ITERATION = BS_input.ITR;
-BS_density = BS_input.BS_DENSITY;
-BL_density = BS_input.BL_Density;
+
 nB = BS_input.NUM_BL; %number of blokers
 nTorig = BS_input.Original_NUM_AP; %Original APs without considering self blockage
 rT =BS_input.LOC_AP_DISTANCE; %location of APs
@@ -130,9 +128,6 @@ for indDisc=1:length(discovery_time)
     tic 
     for indPrep = 1:length(preparation_time)
         idle_antennas = 0;
-        BSSET = randperm(nT,conDegree);
-        NONBSSET = setdiff(tranBSs,BSSET);
-        BLOCKEDBSSET = [];
         dt = discovery_time(indDisc);
         w = preparation_time(indPrep);
         servBS = zeros(4,nT);
