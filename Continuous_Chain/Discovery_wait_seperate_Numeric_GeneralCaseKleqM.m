@@ -18,13 +18,15 @@ K_list = [1,2,3,4];                      % Degree of Connectivity
 w_list = 1000./[10,20]; %1000./[10,15,25,30,70,200,1000];      %Connection establishment times
 dt_list = 1000./[1,5,20,200,1000];   %Discovery Times
 a_list = C.*2*R/3;                       %Blocker Arrivals
+self_blockage = 5/6;
+
 
 P_OS = zeros(length(lambda_BS),length(K_list),length(w_list),length(dt_list),length(a_list));
 
 for indBS=1:length(lambda_BS)
     M_max = density_limits(indBS);
     for M = 1:M_max
-        P_M =  exp(-1*lambda_BS(indBS)*pi*R^2) * (lambda_BS(indBS)*pi*R^2)^(M)/factorial(M);
+        P_M =  exp(-1*lambda_BS(indBS)*self_blockage*pi*R^2) * (lambda_BS(indBS)*self_blockage*pi*R^2)^(M)/factorial(M);
         for indK = 1:length(K_list)
             K = K_list(indK);
             for indW = 1:length(w_list)
@@ -86,7 +88,7 @@ for indBS=1:length(lambda_BS)
                         B = zeros(num_states+1,1);
                         B(num_states+1)=1;
                         X = mldivide(MM,B);
-                        disp(P_M * sum(X([chain_states.right]==0)))
+%                         disp(P_M * sum(X([chain_states.right]==0)))
                         P_OS(indBS,indK,indW,indDt,indA) = P_OS(indBS,indK,indW,indDt,indA) + P_M * sum(X([chain_states.right]==0));
 %                         P_OS(indBS,indK,indW,indDt,indA) = sum(X([chain_states.right]==0));
                         clearvars chain_states
