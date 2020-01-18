@@ -126,12 +126,9 @@ output = {}; % includes available BS cells for all different discovery and prepa
 
 for indDisc=1:length(discovery_time)
     tic 
+    dt = discovery_time(indDisc);
     for indPrep = 1:length(preparation_time)
         idle_antennas = 0;
-        BSSET = randperm(nT,conDegree);
-        NONBSSET = setdiff(tranBSs,BSSET);
-        BLOCKEDBSSET = [];
-        dt = discovery_time(indDisc);
         w = preparation_time(indPrep);
         servBS = zeros(4,nT);
 
