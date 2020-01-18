@@ -160,8 +160,12 @@ for indDisc=1:length(discovery_time)
                         numArrivals = sum(dataBS{newBS}(1,:) <= timestamp);
                         numDepart = sum(dataBS{newBS}(3,:) <= timestamp);
                         C = dataBS{newBS}(3,:);
-                        endBlockage = max(C(C < timestamp));
-                        if (numArrivals - numDepart) == 0 && (endBlockage + dt) <= timestamp
+                        if ~isempty(C(C < timestamp))
+                            endBlockage = max(C(C < timestamp));
+                        else 
+                            endBlockage = timestamp ; % make the next condition invalid 
+                        end 
+                        if (numArrivals - numDepart == 0) && (endBlockage + dt <= timestamp)
                             % new BS is available
                             if isempty(BSSET) % if BSSET was empty and we add a BS, then we the blockage period ends
                                 blockage_duration(end) = timestamp - blockage_duration(end);
