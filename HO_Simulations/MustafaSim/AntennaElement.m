@@ -49,7 +49,7 @@ classdef AntennaElement
                         % available.
                     else
                         % Dont check is blocked but check isDiscovered
-                        available_BS = find([base_stations.isDiscovered]==0);
+                        available_BS = find([base_stations.isDiscovered]==1);
                         %remove Base stations connected to other antenna
                         %elements
                         available_BS = setdiff(available_BS,[obj.Connected_BS_idx]);
@@ -65,7 +65,7 @@ classdef AntennaElement
                         else
                             obj(ii).isConnected = 0;
                             % find out when a bs will be available
-                            obj(ii).next_event_time = min([base_stations([base_stations.isBlocked]==1).nextAvailableTime]) + obj(ii).wait_time;
+                            obj(ii).next_event_time = min([base_stations([base_stations.isDiscovered]==0).nextAvailableTime]) + obj(ii).wait_time;
                         end
                     end
                 else

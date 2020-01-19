@@ -28,22 +28,23 @@ hb = 1.8; %height blocker
 hr = 1.4; %height receiver (UE)
 ht = 5; %height transmitter (BS)
 frac = (hb-hr)/(ht-hr);
-simTime = 60*60; %sec Total Simulation time
+simTime = 4*60*60; %sec Total Simulation time
 % Note!!! simTime must be >100s else the code won't work :)
 tstep = 0.0001; %(sec) time step
 mu = 2; %Expected bloc dur =1/mu sec
 R = 100; %m Radius
 
-discovery = [1000]*10^(-3);%[1 5 20 200 1000]*10^(-3);
-preparation = [100]*10^(-3);%[10 20]*10^(-3);
-densityBL = [0.01];%[0.01 0.1];
-densityBS = [200 500]*10^(-6);%[200 300 400 500]*10^(-6);
-connectivity = [1 2];%[1 2 3 4];
+discovery = [1 5 20 200 1000]*10^(-3);
+preparation = [10 20]*10^(-3);
+densityBL = [0.01 0.1];
+densityBS = [200 300 400 500]*10^(-6);
+connectivity = [1 2 3 4];
+
 
 nTorig = densityBS*pi*R^2;
 omega = pi/3;
 
-s_input = cell(1,2);
+s_input = cell(1,2); 
 s_mobility = cell(1,2);
 
 for indB=1:length(densityBL)
@@ -59,9 +60,8 @@ s_input{indB} = struct('V_POSITION_X_INTERVAL',[-R R],...%(m)
 % Generate_Mobility function is Copyright (c) 2011, Mathieu Boutin
 s_mobility{indB} = Generate_Mobility(s_input{indB});
 end
-
-
-finaldata = zeros(length(discovery),length(preparation),length(densityBS),length(connectivity),length(densityBL));
+ finaldata = zeros(length(discovery),length(preparation),length(densityBS),length(connectivity),length(densityBL));
+ blockageDurations = cell(length(densityBS),length(connectivity),length(densityBL));
 
 for indBS = 1:length(densityBS)
     nT = poissrnd(densityBS(indBS)*pi*R^2);
@@ -84,7 +84,7 @@ for indBS = 1:length(densityBS)
                 'FRACTION',frac,...
                 'SELF_BL_ANGLE_OMEGA',omega,...
                 'Original_NUM_AP',nT,...
-                'LOC_AP_DISTANCE', rT,...
+                'LOC_AP_DISTANCE', rT,... 
                 'LOC_AP_ANGLE',alphaT,...
                 'NUM_BL',nB,...
                 'DISCOVERY_TIME',discovery,...
@@ -94,10 +94,13 @@ for indBS = 1:length(densityBS)
                 'ITR',aID);
 
                 %BlockageSimFn function is written by Ish Jain
-                [output] = BlockageSimFn_Mustafa(s_mobility{indB},BS_input);
+                [output, blockage_events] = BlockageSimFn_Mustafa(s_mobility{indB},BS_input);
                 toc
                 finaldata(:,:,indBS,indT,indB) = output;
+                blockageDurations{indBS,indT,indB} = blockage_events;
         end
    end
-end 
-save(strcat('output','_',num2str(aID),'.mat'),'finaldata')
+end
+
+save(strcat('data/output','_',num2str(aID),'.mat'),'finaldata')
+save(strcat('data/blockages','_',num2str(aID),'.mat'),'blockageDurations')

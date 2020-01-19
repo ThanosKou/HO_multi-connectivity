@@ -25,8 +25,10 @@ classdef BaseStation
                 obj(ii).current_time=next_time;
                 num_arrivals = sum(obj(ii).blockage_arrivals<=next_time);
                 num_departures = sum(obj(ii).blockage_departures<=next_time);
+                last_blockage_end = max([obj(ii).blockage_departures(obj(ii).blockage_departures<next_time)]);
                 if (num_arrivals - num_departures) == 0
                     obj(ii).isBlocked = 0;
+                    obj(ii).nextAvailableTime = last_blockage_end + obj(ii).discovery_time;
                 else
                     how_many_blockers = num_arrivals - num_departures;
                     obj(ii).isBlocked = 1;
@@ -34,11 +36,13 @@ classdef BaseStation
                     next_blockage_end = remaining_departures_sorted(how_many_blockers);
                     obj(ii).nextAvailableTime = next_blockage_end + obj(ii).discovery_time;
                 end
-                last_blockage_end = max([obj(ii).blockage_departures(obj(ii).blockage_departures<next_time),0]);
-                if ~(obj(ii).isBlocked) && (last_blockage_end + obj(ii).discovery_time <= next_time)
-                    obj(ii).isDiscovered = 1;
+                if isempty(last_blockage_end)
                 else
-                   obj(ii).isDiscovered = 0;
+                    if ~(obj(ii).isBlocked) && (last_blockage_end + obj(ii).discovery_time <= next_time)
+                        obj(ii).isDiscovered = 1;
+                    else
+                       obj(ii).isDiscovered = 0;
+                    end
                 end
             end
         end

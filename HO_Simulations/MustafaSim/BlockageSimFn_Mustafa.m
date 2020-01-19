@@ -1,4 +1,4 @@
-function [output] = BlockageSimFn_Mustafa(s_mobility,BS_input)
+function [output, blockage_events] = BlockageSimFn_Mustafa(s_mobility,BS_input)
 % Written by Thanos Koutsaftis
 % Used template of Ish Kumar Jain
 % NYU Tandon School of Engineering
@@ -116,6 +116,7 @@ preparation_time = BS_input.HO_PREP_TIME;
 initial_BS_idx = randperm(nT,conDegree);
 
 output = cell(length(discovery_time),length(preparation_time));
+blockage_events = cell(length(discovery_time),length(preparation_time));
 
 for indDisc=1:length(discovery_time)
     dt = discovery_time(indDisc);
@@ -136,11 +137,26 @@ for indDisc=1:length(discovery_time)
         prev_time = 0;
         next_event_time = min([antenna_elements.next_event_time]);
         
+        state = 0;
+        last_state_change = 0;
+        blockage_duration = [];
+        
         while next_event_time < simTime
             isConnected = sum([antenna_elements.isConnected]);
             if isConnected > 0
+                if state == 1
+                    state = 0;
+                    blockage_ended = prev_time;
+                    blockage_duration = [blockage_duration , blockage_ended-blockage_started];
+                    last_state_change = prev_time;
+                end
                 durationConnected = durationConnected + next_event_time - prev_time;
             else
+                if state == 0
+                    state = 1;
+                    last_state_change = prev_time;
+                    blockage_started = last_state_change;
+                end
                 durationBlocked = durationBlocked + next_event_time - prev_time;
             end
             % Update BS Times
@@ -149,20 +165,44 @@ for indDisc=1:length(discovery_time)
             antenna_elements = antenna_elements.advTime(next_event_time,base_stations);
             prev_time = next_event_time;
             next_event_time = min([antenna_elements.next_event_time]);
+            if prev_time >= next_event_time
+                disp('Something Wrong infinite loop')
+            end
         end
         
         isConnected = sum([antenna_elements.isConnected]);
         if isConnected > 0
             durationConnected = durationConnected + simTime - prev_time;
+            if state == 1
+                    state = 0;
+                    blockage_ended = prev_time;
+                    blockage_duration = [blockage_duration , blockage_ended-blockage_started];
+            end
         else
+            if state == 1
+                blockage_duration = [blockage_duration , simTime-blockage_started];
+            end
+            if state == 0
+                blockage_duration = [blockage_duration , simTime - prev_time];
+            end
             durationBlocked = durationBlocked + simTime - prev_time;
+        end
+        
+        
+        total_blockage_duration_by_ind_blockages = sum(blockage_duration);
+        if abs(durationBlocked - total_blockage_duration_by_ind_blockages) < 1e-6
+%             disp('Equal')
+        else
+            disp('There might be a problem, not equal')
+            disp('Difference = ')
+            disp(durationBlocked-total_blockage_duration_by_ind_blockages)
         end
         
         probBl = durationBlocked / (durationBlocked + durationConnected);
         output{indDisc,indPrep} = probBl;
+        blockage_events{indDisc,indPrep} = blockage_duration;
     end
 end
 
 output = cell2mat(output);
-
 end
