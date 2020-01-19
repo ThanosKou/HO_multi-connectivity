@@ -13,7 +13,7 @@ C = 2*V.*lambda_B*frac/pi;
 
 
 lambda_BS = [200 300 400 500]*10^(-6); %densityBS
-density_limits = [23,29,35,40];
+density_limits = [30,40,50,60];
 K_list = [1,2,3,4];                      % Degree of Connectivity
 w_list = 1000./[10,20]; %1000./[10,15,25,30,70,200,1000];      %Connection establishment times
 dt_list = 1000./[1,5,20,200,1000];   %Discovery Times
@@ -68,11 +68,7 @@ for indBS=1:length(lambda_BS)
                             end
                             if ~isempty(up_side_state)
                                 target_idx =  up_side_state.index;
-                                %                             if sr==0
-                                %                                 MM(target_idx,state_idx) = max(1000/70 , min(K-sr,sl) * w);
-                                %                             else
                                 MM(target_idx,state_idx) = min(K-sr,sl-sr) * w;
-                                %                             end
                             end
                             if ~isempty(down_right_side_state)
                                 target_idx =  down_right_side_state.index;
@@ -100,7 +96,7 @@ for indBS=1:length(lambda_BS)
 end
 
 
-string = ['NoRLF_Numerical-Results-No-Self-Blockage_given_coverage'];
+string = ['NoRLF_Numerical-Results'];
 description = 'P_OS is a matrix where first indexing element is for different BS densities, second indexing element is for K connectivity, third indexing is for W the time to initiate handover, fourth indexing is for Dt the time to discover BS, and the fifth indexing is for different blocker densities.';
 
 save(string,'description','P_OS','lambda_BS','K_list','w_list','dt_list','a_list');
