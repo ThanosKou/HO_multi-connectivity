@@ -38,7 +38,7 @@ classdef AntennaElement
                             obj(ii).Connected_BS = [];
                             obj(ii).Connected_BS_idx = -1;
                             obj(ii).isConnected = 0;
-                            obj(ii).next_event_time = obj(ii).current_time + obj(ii).wait_time;
+                            obj(ii).next_event_time = obj(ii).current_time + exprnd(obj(ii).wait_time,1);
                         else
                             disp('Something is wrong event is for this antenna element, it has an active BS but the event is not a blocker arrival for that BS')
                         end
@@ -65,7 +65,7 @@ classdef AntennaElement
                         else
                             obj(ii).isConnected = 0;
                             % find out when a bs will be available
-                            obj(ii).next_event_time = min([base_stations([base_stations.isDiscovered]==0).nextAvailableTime]) + obj(ii).wait_time;
+                            obj(ii).next_event_time = min([base_stations([base_stations.isDiscovered]==0).nextAvailableTime]) +  exprnd(obj(ii).wait_time,1);
                         end
                     end
                 else
