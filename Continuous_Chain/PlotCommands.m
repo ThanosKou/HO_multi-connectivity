@@ -1,13 +1,12 @@
 figure()
-semilogy(lambda_BS,P_OS(:,1,1,2,1),'-rx')
+semilogy(lambda_BS,P_OS(:,1,2,3,1),'--bx')
 grid on;
 hold on;
-semilogy(lambda_BS,P_OS(:,1,1,2,2),'-r+')
-
-semilogy(lambda_BS,P_OS(:,1,1,5,1),'-bx')
-hold on;
-semilogy(lambda_BS,P_OS(:,1,1,5,2),'-b+')
-
+semilogy(lambda_BS,P_OS(:,2,2,3,1),'--b^')
+semilogy(lambda_BS,P_OS(:,3,2,3,1),'--bo')
+semilogy(lambda_BS,P_OS(:,4,2,3,1),'--bp')
+legend('1 Connectivity','2 Connectivity','3 Connectivity','4 Connectivity')
+title('20 ms Association and 20 ms Discovery Time')
 
 figure()
 semilogy(lambda_BS,P_OS(:,1,2,1,2),'-rx')
