@@ -94,7 +94,7 @@ for indBS=1:length(lambda_BS)
         end
     end
 end
-
+P_OS = P_OS./(1-exp(-self_blockage*pi*R^2*lambda_BS));
 
 string = ['SmallWandDt-NoRLF_Numerical-Results'];
 description = 'P_OS is a matrix where first indexing element is for different BS densities, second indexing element is for K connectivity, third indexing is for W the time to initiate handover, fourth indexing is for Dt the time to discover BS, and the fifth indexing is for different blocker densities.';
