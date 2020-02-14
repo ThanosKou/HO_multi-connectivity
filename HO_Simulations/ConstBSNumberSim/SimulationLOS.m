@@ -28,7 +28,7 @@ hb = 1.8; %height blocker
 hr = 1.4; %height receiver (UE)
 ht = 5; %height transmitter (BS)
 frac = (hb-hr)/(ht-hr);
-simTime = 60*60; %sec Total Simulation time
+simTime = 4*60*60; %sec Total Simulation time
 % Note!!! simTime must be >100s else the code won't work :)
 tstep = 0.0001; %(sec) time step
 mu = 2; %Expected bloc dur =1/mu sec
