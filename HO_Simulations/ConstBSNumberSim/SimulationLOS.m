@@ -16,7 +16,7 @@ clear;
 aID = getenv('SLURM_ARRAY_TASK_ID')
 if(isempty(aID))
   warning('aID is empty. Replacing it with 1.')  
-  aID = '1'; %Runs only for first value of AP density when aID=1
+  aID = '2'; %Runs only for first value of AP density when aID=1
 end
 rng('shuffle');
 
@@ -28,7 +28,7 @@ hb = 1.8; %height blocker
 hr = 1.4; %height receiver (UE)
 ht = 5; %height transmitter (BS)
 frac = (hb-hr)/(ht-hr);
-simTime = 4*60*60; %sec Total Simulation time
+simTime = 60*60; %sec Total Simulation time
 % Note!!! simTime must be >100s else the code won't work :)
 tstep = 0.0001; %(sec) time step
 mu = 2; %Expected bloc dur =1/mu sec
@@ -42,7 +42,7 @@ numBS = [6,9,12,15];
 connectivity = [1 2 3 4];
 
 
-omega = pi/3;
+omega = 0;%pi/3;
 tic
 s_input = cell(1,2); 
 s_mobility = cell(1,2);

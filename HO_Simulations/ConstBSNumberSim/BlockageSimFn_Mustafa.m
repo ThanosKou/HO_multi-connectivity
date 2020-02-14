@@ -91,7 +91,17 @@ end
 for indT = 1:nT
     len =length(dataBS{indT});
     dataBS{indT}(2,:) =  exprnd(1/mu,1,len); % block duration
-    dataBS{indT}(3,:) = dataBS{indT}(2,:) + dataBS{indT}(1,:); % end of physical blockages
+    dataBS{indT}(3,:) = dataBS{indT}(2,:) + dataBS{indT}(1,:); % end of physical blockages\
+    %if a blocker arrives before the previous blocker served then that is a
+    %one long blockage, for programming purposes we delete the second
+    %arrival and make one long combined blockage
+    for jj=len:-1:2
+        if dataBS{indT}(3,jj-1) >= dataBS{indT}(1,jj)
+            dataBS{indT}(3,jj-1) = dataBS{indT}(3,jj);
+            dataBS{indT}(:,jj) = [];
+        end
+    end
+    
 end
 
 
@@ -107,13 +117,34 @@ for indDisc=1:length(discovery_time)
     dt = discovery_time(indDisc);
     for indPrep = 1:length(preparation_time)
         w = preparation_time(indPrep);
+        
+        for indT = 1:nT
+            len =length(dataBS{indT});
+            % here we can change exprnd to deterministic for real
+            % simulation
+            dataBS{indT}(4,:) =  exprnd(dt,1,len); % discovery duration
+            dataBS{indT}(5,:) = dataBS{indT}(3,:) + dataBS{indT}(4,:); % discovery time\
+            %if a blocker arrives before the previous blocker served and the bs is discovered then that is a
+            %one long blockage, for programming purposes we delete the second
+            %arrival and make one long combined blockage and find the
+            %discovery time
+            for jj=len:-1:2
+                if dataBS{indT}(5,jj-1) >= dataBS{indT}(1,jj)
+                    dataBS{indT}(5,jj-1) = dataBS{indT}(5,jj);
+                    dataBS{indT}(:,jj) = [];
+                end
+            end
+            
+        end
+        current_time=0;
+        
         for indT = nT:-1:1
-            base_stations(indT) = BaseStation(0,dataBS{indT},dt,indT);
+            base_stations(indT) = BaseStation(current_time,dataBS{indT},indT);
         end
         
         
         for idxAnt = length(initial_BS_idx):-1:1
-            antenna_elements(idxAnt) = AntennaElement(base_stations(initial_BS_idx(idxAnt)),w);
+            antenna_elements(idxAnt) = AntennaElement(base_stations(initial_BS_idx(idxAnt)),w,current_time);
         end
         
         durationConnected = 0;
