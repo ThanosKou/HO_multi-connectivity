@@ -45,6 +45,17 @@ classdef AntennaElement
                     % or it will try to establish a connection
                     %update the time
                     obj(ii).current_time = next_time;
+                    %update properties of your connected BS.
+                    if isempty(obj(ii).Connected_BS)
+                        % no need to update BS
+                    else
+                        obj(ii).Connected_BS = base_stations(obj(ii).Connected_BS_idx);
+                    end
+                    if isempty(obj(ii).targetBS)
+                        % no need to update BS
+                    else
+                        obj(ii).targetBS = base_stations(obj(ii).target_BS_idx);
+                    end
                     %if there is a BS connected then this event must be
                     %that bs getting blocked
                     if obj(ii).state == 1
@@ -99,8 +110,9 @@ classdef AntennaElement
                             obj(ii).Connected_BS_idx = obj(ii).target_BS_idx;
                             obj(ii).target_BS_idx = 0;
                             obj(ii).state = 1;
-                            %Choose a BS
                             obj(ii).isConnected = 1;
+                            obj(ii).isEstablishing = 0;
+                            obj(ii).isIdle = 0;
                             % next event time is the next blockage of this bs
                             obj(ii).next_event_time =  obj(ii).Connected_BS.nextBlockageArrival(obj(ii).current_time);
                         else %find a new target
@@ -171,6 +183,11 @@ classdef AntennaElement
                         % no need to update BS
                     else
                         obj(ii).Connected_BS = base_stations(obj(ii).Connected_BS_idx);
+                    end
+                    if isempty(obj(ii).targetBS)
+                        % no need to update BS
+                    else
+                        obj(ii).targetBS = base_stations(obj(ii).target_BS_idx);
                     end
                 end
             end
