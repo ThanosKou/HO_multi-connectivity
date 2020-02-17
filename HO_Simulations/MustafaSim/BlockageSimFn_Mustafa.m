@@ -14,27 +14,12 @@ function [output, blockage_events] = BlockageSimFn_Mustafa(s_mobility,BS_input)
 % blocker will block the BS-UE LOS path is it crosses the line joining
 % between BS and the UE. We use find_blockage_distance.m function to fine
 % intersection of two such lines. Finally, we repeat the process for all
-% the blockers, for all the BSs and for the whole simulation duration. We
-% collect this data as sequences (binary_seq) of 0 and 1 (0=blockage, 1=not blocked) for
-% the entire duration for each BS-UE pair. Bitwise and of these sequences
-% for all the APs gives a sequence (allBl) indicating simultaneous blockage of all BSs.
-%
-% Output: output file contains:
-%   avgFreq: Average frequency of simultaneous blockage of all BS.
-%   avgDur: Average duration of simultaneous blockage of all BS.
-%   probAllBl: probability of simultaneous blockage of all BS.
-%   nTorig: original number of BS (can be blocked by self-blockage)
-%   nT: number of BS not blocked by self-blockage
+% the blockers, for all the BSs and for the whole simulation duration. 
 
 
 
 %----Play-with-values-here--------------------------------------
-wannaplot = BS_input.WANNAPLOT; %1;
-ITERATION = BS_input.ITR;
-BS_density = BS_input.BS_DENSITY;
-BL_density = BS_input.BL_Density;
 nB = BS_input.NUM_BL; %number of blokers
-nTorig = BS_input.Original_NUM_AP; %Original APs without considering self blockage
 rT =BS_input.LOC_AP_DISTANCE; %location of APs
 alphaTorig = BS_input.LOC_AP_ANGLE;%location of APs
 
@@ -49,6 +34,7 @@ nT = length(tempInd); % number of BS not blocked by self-blockage
 % nT=0
 if(nT==0)
     output=[0,0,0];
+    disp('Zero AP in the coverage region')
     return;
 end % Dealing zero APs
 
@@ -57,7 +43,6 @@ yTfrac = frac*yT;
 locT = [xTfrac';yTfrac']; %2 rows for x and y, nT columns
 alphaT = alphaTorig(tempInd); %angle from x-axis for BS not blocked by self-bl
 simTime = BS_input.SIMULATION_TIME; %sec Total Simulation time
-%tstep = BS_input.TIME_STEP; %(sec) time step
 mu = BS_input.MU; %Expected bloc dur =1/mu
 conDegree = BS_input.DEGREE_CONNECTIVITY;
 
@@ -106,7 +91,17 @@ end
 for indT = 1:nT
     len =length(dataBS{indT});
     dataBS{indT}(2,:) =  exprnd(1/mu,1,len); % block duration
-    dataBS{indT}(3,:) = dataBS{indT}(2,:) + dataBS{indT}(1,:); % end of physical blockages
+    dataBS{indT}(3,:) = dataBS{indT}(2,:) + dataBS{indT}(1,:); % end of physical blockages\
+    %if a blocker arrives before the previous blocker served then that is a
+    %one long blockage, for programming purposes we delete the second
+    %arrival and make one long combined blockage
+    for jj=len:-1:2
+        if dataBS{indT}(3,jj-1) >= dataBS{indT}(1,jj)
+            dataBS{indT}(3,jj-1) = dataBS{indT}(3,jj);
+            dataBS{indT}(:,jj) = [];
+        end
+    end
+    
 end
 
 
@@ -122,13 +117,34 @@ for indDisc=1:length(discovery_time)
     dt = discovery_time(indDisc);
     for indPrep = 1:length(preparation_time)
         w = preparation_time(indPrep);
+        
+        for indT = 1:nT
+            len =length(dataBS{indT});
+            % here we can change exprnd to deterministic for real
+            % simulation
+            dataBS{indT}(4,:) =  exprnd(dt,1,len); % discovery duration
+            dataBS{indT}(5,:) = dataBS{indT}(3,:) + dataBS{indT}(4,:); % discovery time\
+            %if a blocker arrives before the previous blocker served and the bs is discovered then that is a
+            %one long blockage, for programming purposes we delete the second
+            %arrival and make one long combined blockage and find the
+            %discovery time
+            for jj=len:-1:2
+                if dataBS{indT}(5,jj-1) >= dataBS{indT}(1,jj)
+                    dataBS{indT}(5,jj-1) = dataBS{indT}(5,jj);
+                    dataBS{indT}(:,jj) = [];
+                end
+            end
+            
+        end
+        current_time=0;
+        
         for indT = nT:-1:1
-            base_stations(indT) = BaseStation(0,dataBS{indT},dt,indT);
+            base_stations(indT) = BaseStation(current_time,dataBS{indT},indT);
         end
         
         
         for idxAnt = length(initial_BS_idx):-1:1
-            antenna_elements(idxAnt) = AntennaElement(base_stations(initial_BS_idx(idxAnt)),w);
+            antenna_elements(idxAnt) = AntennaElement(base_stations(initial_BS_idx(idxAnt)),w,current_time);
         end
         
         durationConnected = 0;

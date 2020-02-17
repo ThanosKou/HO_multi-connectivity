@@ -1,15 +1,16 @@
 classdef AntennaElement
     properties
-        current_time = 0;
-        next_event_time = 0;
-        isConnected = 0;
+        current_time = -1;
+        next_event_time = -1;
+        isConnected = -1;
+        isEstablishing = -1;
+        isIdle = -1;
         Connected_BS = [];
         Connected_BS_idx = 0;
         targetBS = [];
-        target_BS_idx = 0;
+        target_BS_idx = -1;
         wait_time = 30/1000;
-        isEstablishing = 0;
-        state = 0;
+        state = -1;
         %1-> connected BS gets blocked, either initate connection move to
         % state 2 or wait for bs to become available move to state 3,
         % 2-> connection time passed addition if BS still available  else
@@ -17,14 +18,17 @@ classdef AntennaElement
         %3-> BS become available
     end
     methods
-        function obj = AntennaElement(BaseStation,waiting_time)
+        function obj = AntennaElement(BaseStation,waiting_time,current_time)
             if nargin ~= 0
+                obj.current_time=current_time;
                 obj.Connected_BS = BaseStation;
                 obj.Connected_BS_idx = BaseStation.index;
                 obj.wait_time = waiting_time;
                 obj.next_event_time = BaseStation.nextBlockageArrival(obj.current_time);
                 if ~isempty(obj.Connected_BS)
                     obj.isConnected = 1;
+                    obj.isEstablishing = 0;
+                    obj.isIdle = 0;
                     obj.state = 1;
                 else
                     obj.isConnected = 0;
@@ -41,6 +45,17 @@ classdef AntennaElement
                     % or it will try to establish a connection
                     %update the time
                     obj(ii).current_time = next_time;
+                    %update properties of your connected BS.
+                    if isempty(obj(ii).Connected_BS)
+                        % no need to update BS
+                    else
+                        obj(ii).Connected_BS = base_stations(obj(ii).Connected_BS_idx);
+                    end
+                    if isempty(obj(ii).targetBS)
+                        % no need to update BS
+                    else
+                        obj(ii).targetBS = base_stations(obj(ii).target_BS_idx);
+                    end
                     %if there is a BS connected then this event must be
                     %that bs getting blocked
                     if obj(ii).state == 1
@@ -50,14 +65,18 @@ classdef AntennaElement
                             obj(ii).Connected_BS_idx = -1;
                             obj(ii).isConnected = 0;
                             % Dont check is blocked but check isDiscovered
-                            available_BS = find([base_stations.isDiscovered]==1);
-                            %remove Base stations connected to other antenna
+                            available_BS = find(([base_stations.isDiscovered]==1) );
+                            %remove Base stations targeted by other antenna
                             %elements
                             available_BS = setdiff(available_BS,[obj.Connected_BS_idx]);
+                            available_BS = setdiff(available_BS,[obj.target_BS_idx]);
                             if ~isempty(available_BS)
                                 %Choose a BS
                                 next_bs_idx = available_BS(randi(length(available_BS),1));
                                 obj(ii).state = 2;
+                                obj(ii).isConnected = 0;
+                                obj(ii).isEstablishing = 1;
+                                obj(ii).isIdle = 0;
                                 obj(ii).targetBS = base_stations(next_bs_idx);
                                 obj(ii).target_BS_idx = next_bs_idx;
                                 obj(ii).next_event_time = obj(ii).current_time + exprnd(obj(ii).wait_time,1);
@@ -65,6 +84,9 @@ classdef AntennaElement
                                 obj(ii).state = 3;
                                 obj(ii).targetBS = [];
                                 obj(ii).target_BS_idx = 0;
+                                obj(ii).isConnected = 0;
+                                obj(ii).isEstablishing = 0;
+                                obj(ii).isIdle = 1;
                                 % find out when a bs will be available
                                 obj(ii).next_event_time = min([base_stations([base_stations.isDiscovered]==0).nextAvailableTime]);
                             end
@@ -88,20 +110,25 @@ classdef AntennaElement
                             obj(ii).Connected_BS_idx = obj(ii).target_BS_idx;
                             obj(ii).target_BS_idx = 0;
                             obj(ii).state = 1;
-                            %Choose a BS
                             obj(ii).isConnected = 1;
+                            obj(ii).isEstablishing = 0;
+                            obj(ii).isIdle = 0;
                             % next event time is the next blockage of this bs
                             obj(ii).next_event_time =  obj(ii).Connected_BS.nextBlockageArrival(obj(ii).current_time);
                         else %find a new target
                             % Dont check is blocked but check isDiscovered
-                            available_BS = find([base_stations.isDiscovered]==1);
-                            %remove Base stations connected to other antenna
+                            available_BS = find(([base_stations.isDiscovered]==1));
+                            %remove Base stations targeted by other antenna
                             %elements
                             available_BS = setdiff(available_BS,[obj.Connected_BS_idx]);
+                            available_BS = setdiff(available_BS,[obj.target_BS_idx]);
                             if ~isempty(available_BS)
                                 %Choose a BS
                                 next_bs_idx = available_BS(randi(length(available_BS),1));
                                 obj(ii).state = 2;
+                                obj(ii).isConnected = 0;
+                                obj(ii).isEstablishing = 1;
+                                obj(ii).isIdle = 0;
                                 obj(ii).targetBS = base_stations(next_bs_idx);
                                 obj(ii).target_BS_idx = next_bs_idx;
                                 obj(ii).next_event_time = obj(ii).current_time + exprnd(obj(ii).wait_time,1);
@@ -109,20 +136,27 @@ classdef AntennaElement
                                 obj(ii).state = 3;
                                 obj(ii).targetBS = [];
                                 obj(ii).target_BS_idx = 0;
+                                obj(ii).isConnected = 0;
+                                obj(ii).isEstablishing = 0;
+                                obj(ii).isIdle = 1;
                                 % find out when a bs will be available
                                 obj(ii).next_event_time = min([base_stations([base_stations.isDiscovered]==0).nextAvailableTime]);
                             end
                         end
                     elseif obj(ii).state == 3
                         % Dont check is blocked but check isDiscovered
-                        available_BS = find([base_stations.isDiscovered]==1);
-                        %remove Base stations connected to other antenna
+                        available_BS = find(([base_stations.isDiscovered]==1));
+                        %remove Base stations targeted by other antenna
                         %elements
                         available_BS = setdiff(available_BS,[obj.Connected_BS_idx]);
+                        available_BS = setdiff(available_BS,[obj.target_BS_idx]);
                         if ~isempty(available_BS)
                             %Choose a BS
                             next_bs_idx = available_BS(randi(length(available_BS),1));
                             obj(ii).state = 2;
+                            obj(ii).isConnected = 0;
+                            obj(ii).isEstablishing = 1;
+                            obj(ii).isIdle = 0;
                             obj(ii).targetBS = base_stations(next_bs_idx);
                             obj(ii).target_BS_idx = next_bs_idx;
                             obj(ii).next_event_time = obj(ii).current_time + exprnd(obj(ii).wait_time,1);
@@ -130,6 +164,9 @@ classdef AntennaElement
                             obj(ii).state = 3;
                             obj(ii).targetBS = [];
                             obj(ii).target_BS_idx = 0;
+                            obj(ii).isConnected = 0;
+                            obj(ii).isEstablishing = 0;
+                            obj(ii).isIdle = 1;
                             % find out when a bs will be available
                             obj(ii).next_event_time = min([base_stations([base_stations.isDiscovered]==0).nextAvailableTime]);
                         end
@@ -146,6 +183,11 @@ classdef AntennaElement
                         % no need to update BS
                     else
                         obj(ii).Connected_BS = base_stations(obj(ii).Connected_BS_idx);
+                    end
+                    if isempty(obj(ii).targetBS)
+                        % no need to update BS
+                    else
+                        obj(ii).targetBS = base_stations(obj(ii).target_BS_idx);
                     end
                 end
             end
