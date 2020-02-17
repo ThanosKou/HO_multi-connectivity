@@ -1,4 +1,4 @@
-outputs = dir(['output_3','*']);
+outputs = dir(['output','*']);
 num_files = length(outputs);
 
 
