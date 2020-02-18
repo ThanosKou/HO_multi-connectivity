@@ -66,7 +66,7 @@ end
 for indBS = 1:length(densityBS)
     nT = poissrnd(densityBS(indBS)*pi*R^2);
     %nT = floor(densityBS(indBS)*pi*R^2);
-    rT = 2*R/3*ones(nT,1); %location of APs (distance from origin)
+    rT = R*sqrt(rand(nT,1));%2*R/3 * ones(nT,1); %location of APs (distance from origin)
     alphaT = 2*pi*rand(nT,1);%location of APs (angle from x-axis)
     BS_pos_stat = [rT,alphaT];
     for indT = 1:length(connectivity)
