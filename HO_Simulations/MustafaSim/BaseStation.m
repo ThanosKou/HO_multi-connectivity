@@ -28,6 +28,7 @@ classdef BaseStation
                 if (num_arrivals - num_departures) == 0
                     obj(ii).isBlocked = 0;
                     obj(ii).isDiscovered = 1;
+                    obj(ii).nextAvailableTime = -1;
                 else
                     obj(ii).isBlocked = 1;
                     obj(ii).isDiscovered = 0;

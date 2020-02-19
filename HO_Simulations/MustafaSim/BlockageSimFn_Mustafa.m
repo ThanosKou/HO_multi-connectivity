@@ -101,7 +101,6 @@ for indT = 1:nT
             dataBS{indT}(:,jj) = [];
         end
     end
-    
 end
 
 
@@ -115,9 +114,11 @@ blockage_events = cell(length(discovery_time),length(preparation_time));
 
 for indDisc=1:length(discovery_time)
     dt = discovery_time(indDisc);
+%     dt=0;
     for indPrep = 1:length(preparation_time)
         w = preparation_time(indPrep);
-        
+%         w = 0;
+        important_times = [0,simTime];
         for indT = 1:nT
             len =length(dataBS{indT});
             % here we can change exprnd to deterministic for real
@@ -134,89 +135,114 @@ for indDisc=1:length(discovery_time)
                     dataBS{indT}(:,jj) = [];
                 end
             end
-            
+            important_times = [important_times,dataBS{indT}(1,:),dataBS{indT}(5,:)];
         end
+        
         current_time=0;
         
         for indT = nT:-1:1
             base_stations(indT) = BaseStation(current_time,dataBS{indT},indT);
         end
         
-        
-        for idxAnt = length(initial_BS_idx):-1:1
-            antenna_elements(idxAnt) = AntennaElement(base_stations(initial_BS_idx(idxAnt)),w,current_time);
+        prev_time=0;
+%         blocked_duration=0;
+        new_method_blockages = 0;
+        important_times = sort(important_times);
+        for timeIdx = 1:length(important_times)
+            this_time = important_times(timeIdx);
+            if isBsBlocked(dataBS,prev_time)
+                new_method_blockages = new_method_blockages + this_time-prev_time;
+            end
+%             if sum([base_stations.isDiscovered]) == 0
+%                 blocked_duration = blocked_duration + this_time-prev_time;
+%             end
+%             base_stations = base_stations.advTime(this_time);
+            prev_time = this_time;
         end
         
-        durationConnected = 0;
-        durationBlocked = 0;
+%         
+%         current_time=0;
+%         
+%         for indT = nT:-1:1
+%             base_stations(indT) = BaseStation(current_time,dataBS{indT},indT);
+%         end
+%         
+%         
+%         for idxAnt = length(initial_BS_idx):-1:1
+%             antenna_elements(idxAnt) = AntennaElement(base_stations(initial_BS_idx(idxAnt)),w,current_time);
+%         end
+%         
+%         durationConnected = 0;
+%         durationBlocked = 0;
+%         
+%         prev_time = 0;
+%         next_event_time = min([antenna_elements.next_event_time]);
+%         
+%         state = 0;
+%         last_state_change = 0;
+%         blockage_duration = [];
+%         
+%         while next_event_time < simTime
+%             
+%             isConnected = sum([antenna_elements.isConnected]);
+%             if isConnected > 0
+%                 if state == 1
+%                     state = 0;
+%                     blockage_ended = prev_time;
+%                     blockage_duration = [blockage_duration , blockage_ended-blockage_started];
+%                     last_state_change = prev_time;
+%                 end
+%                 durationConnected = durationConnected + next_event_time - prev_time;
+%             else
+%                 if state == 0
+%                     state = 1;
+%                     last_state_change = prev_time;
+%                     blockage_started = last_state_change;
+%                 end
+%                 durationBlocked = durationBlocked + next_event_time - prev_time;
+%             end
+%             % Update BS Times
+%             base_stations = base_stations.advTime(next_event_time);
+%             % Update Antenna Times
+%             antenna_elements = antenna_elements.advTime(next_event_time,base_stations);
+%             prev_time = next_event_time;
+%             next_event_time = min([antenna_elements.next_event_time]);
+%             if prev_time > next_event_time
+%                 disp('Something Wrong infinite loop')
+%             end
+%         end
+%         
+%         isConnected = sum([antenna_elements.isConnected]);
+%         if isConnected > 0
+%             durationConnected = durationConnected + simTime - prev_time;
+%             if state == 1
+%                     state = 0;
+%                     blockage_ended = prev_time;
+%                     blockage_duration = [blockage_duration , blockage_ended-blockage_started];
+%             end
+%         else
+%             if state == 1
+%                 blockage_duration = [blockage_duration , simTime-blockage_started];
+%             end
+%             if state == 0
+%                 blockage_duration = [blockage_duration , simTime - prev_time];
+%             end
+%             durationBlocked = durationBlocked + simTime - prev_time;
+%         end
+%         
+%         
+%         total_blockage_duration_by_ind_blockages = sum(blockage_duration);
+%         if abs(durationBlocked - total_blockage_duration_by_ind_blockages) < 1e-6
+% %             disp('Equal')
+%         else
+%             disp('There might be a problem, not equal')
+%             disp('Difference = ')
+%             disp(durationBlocked-total_blockage_duration_by_ind_blockages)
+%         end
         
-        prev_time = 0;
-        next_event_time = min([antenna_elements.next_event_time]);
-        
-        state = 0;
-        last_state_change = 0;
-        blockage_duration = [];
-        
-        while next_event_time < simTime
-            isConnected = sum([antenna_elements.isConnected]);
-            if isConnected > 0
-                if state == 1
-                    state = 0;
-                    blockage_ended = prev_time;
-                    blockage_duration = [blockage_duration , blockage_ended-blockage_started];
-                    last_state_change = prev_time;
-                end
-                durationConnected = durationConnected + next_event_time - prev_time;
-            else
-                if state == 0
-                    state = 1;
-                    last_state_change = prev_time;
-                    blockage_started = last_state_change;
-                end
-                durationBlocked = durationBlocked + next_event_time - prev_time;
-            end
-            % Update BS Times
-            base_stations = base_stations.advTime(next_event_time);
-            % Update Antenna Times
-            antenna_elements = antenna_elements.advTime(next_event_time,base_stations);
-            prev_time = next_event_time;
-            next_event_time = min([antenna_elements.next_event_time]);
-            if prev_time >= next_event_time
-                disp('Something Wrong infinite loop')
-            end
-        end
-        
-        isConnected = sum([antenna_elements.isConnected]);
-        if isConnected > 0
-            durationConnected = durationConnected + simTime - prev_time;
-            if state == 1
-                    state = 0;
-                    blockage_ended = prev_time;
-                    blockage_duration = [blockage_duration , blockage_ended-blockage_started];
-            end
-        else
-            if state == 1
-                blockage_duration = [blockage_duration , simTime-blockage_started];
-            end
-            if state == 0
-                blockage_duration = [blockage_duration , simTime - prev_time];
-            end
-            durationBlocked = durationBlocked + simTime - prev_time;
-        end
-        
-        
-        total_blockage_duration_by_ind_blockages = sum(blockage_duration);
-        if abs(durationBlocked - total_blockage_duration_by_ind_blockages) < 1e-6
-%             disp('Equal')
-        else
-            disp('There might be a problem, not equal')
-            disp('Difference = ')
-            disp(durationBlocked-total_blockage_duration_by_ind_blockages)
-        end
-        
-        probBl = durationBlocked / (durationBlocked + durationConnected);
+        probBl = new_method_blockages/ simTime; %durationBlocked / (durationBlocked + durationConnected);
         output{indDisc,indPrep} = probBl;
-        blockage_events{indDisc,indPrep} = blockage_duration;
+%         blockage_events{indDisc,indPrep} = blockage_duration;
     end
 end
 

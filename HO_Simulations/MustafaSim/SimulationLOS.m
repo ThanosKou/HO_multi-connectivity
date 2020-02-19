@@ -11,7 +11,7 @@
 
 close all;
 clear;
-
+tic
 %----Play-with-values---------------------------------------
 aID = getenv('SLURM_ARRAY_TASK_ID')
 if(isempty(aID))
@@ -34,11 +34,11 @@ tstep = 0.0001; %(sec) time step
 mu = 2; %Expected bloc dur =1/mu sec
 R = 100; %m Radius
 
-discovery = [1 5 20 200 1000]*10^(-3);
-preparation = [10 20]*10^(-3);
-densityBL = [0.01 0.1];
+discovery = 0;
+preparation = 0;
+densityBL = [0.1];
 densityBS = [200 300 400 500]*10^(-6);
-connectivity = [1 2 3 4];
+connectivity = [1];
 
 
 nTorig = densityBS*pi*R^2;
@@ -46,7 +46,6 @@ omega = pi/3;
 
 s_input = cell(1,2); 
 s_mobility = cell(1,2);
-
 for indB=1:length(densityBL)
 s_input{indB} = struct('V_POSITION_X_INTERVAL',[-R R],...%(m)
     'V_POSITION_Y_INTERVAL',[-R R],...%(m)
@@ -74,7 +73,7 @@ for indBS = 1:length(densityBS)
         for indB = 1:length(densityBL) %for all blockers
             rhoB = densityBL(indB);%0.65;%Rajeev calculated central park
             nB = 4*R^2*rhoB;%=4000; %number of blokers
-            tic
+%             tic
             BS_input = struct('WANNAPLOT',wannaplot,...
                 'DEGREE_CONNECTIVITY', currConnec,...
                 'RADIUS_AROUND_UE',R,...
@@ -97,10 +96,11 @@ for indBS = 1:length(densityBS)
                 [output, blockage_events] = BlockageSimFn_Mustafa(s_mobility{indB},BS_input);
                 toc
                 finaldata(:,:,indBS,indT,indB) = output;
-                blockageDurations{indBS,indT,indB} = blockage_events;
+%                 blockageDurations{indBS,indT,indB} = blockage_events;
         end
    end
 end
 
 save(strcat('data/output','_',num2str(aID),'.mat'),'finaldata')
-save(strcat('data/blockages','_',num2str(aID),'.mat'),'blockageDurations')
+% save(strcat('data/blockages','_',num2str(aID),'.mat'),'blockageDurations')
+toc
