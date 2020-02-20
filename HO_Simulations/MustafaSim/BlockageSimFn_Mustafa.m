@@ -97,7 +97,7 @@ for indT = 1:nT
     %arrival and make one long combined blockage
     for jj=len:-1:2
         if dataBS{indT}(3,jj-1) >= dataBS{indT}(1,jj)
-            dataBS{indT}(3,jj-1) = dataBS{indT}(3,jj);
+            dataBS{indT}(3,jj-1) = max(dataBS{indT}(3,jj),dataBS{indT}(3,jj-1));
             dataBS{indT}(:,jj) = [];
         end
     end
@@ -130,7 +130,7 @@ for indDisc=1:length(discovery_time)
             %discovery time
             for jj=len:-1:2
                 if dataBS{indT}(5,jj-1) >= dataBS{indT}(1,jj)
-                    dataBS{indT}(5,jj-1) = dataBS{indT}(5,jj);
+                    dataBS{indT}(5,jj-1) = max(dataBS{indT}(5,jj),dataBS{indT}(5,jj-1));
                     dataBS{indT}(:,jj) = [];
                 end
             end
