@@ -11,7 +11,7 @@ connectivity = [1 2 3 4];
 results_array = zeros(length(discovery),length(preparation),length(densityBS),length(connectivity),length(densityBL),num_files);
  
 
-parfor ii=1:num_files
+for ii=1:num_files
     ii
     aa = load(outputs(ii).name);
     results_array(:,:,:,:,:,ii) = aa.finaldata;
