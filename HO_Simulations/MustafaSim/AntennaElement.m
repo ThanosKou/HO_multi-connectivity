@@ -79,7 +79,7 @@ classdef AntennaElement
                                 obj(ii).isIdle = 0;
                                 obj(ii).targetBS = base_stations(next_bs_idx);
                                 obj(ii).target_BS_idx = next_bs_idx;
-                                obj(ii).next_event_time = obj(ii).current_time + obj(ii).wait_time;% exprnd(obj(ii).wait_time,1);
+                                obj(ii).next_event_time = obj(ii).current_time +  exprnd(obj(ii).wait_time,1);
                             else
                                 obj(ii).state = 3;
                                 obj(ii).targetBS = [];
@@ -131,7 +131,7 @@ classdef AntennaElement
                                 obj(ii).isIdle = 0;
                                 obj(ii).targetBS = base_stations(next_bs_idx);
                                 obj(ii).target_BS_idx = next_bs_idx;
-                                obj(ii).next_event_time = obj(ii).current_time + obj(ii).wait_time;%exprnd(obj(ii).wait_time,1);
+                                obj(ii).next_event_time = obj(ii).current_time + exprnd(obj(ii).wait_time,1);
                             else
                                 obj(ii).state = 3;
                                 obj(ii).targetBS = [];
@@ -159,7 +159,7 @@ classdef AntennaElement
                             obj(ii).isIdle = 0;
                             obj(ii).targetBS = base_stations(next_bs_idx);
                             obj(ii).target_BS_idx = next_bs_idx;
-                            obj(ii).next_event_time = obj(ii).current_time + obj(ii).wait_time;% exprnd(obj(ii).wait_time,1);
+                            obj(ii).next_event_time = obj(ii).current_time + exprnd(obj(ii).wait_time,1);
                         else
                             obj(ii).state = 3;
                             obj(ii).targetBS = [];

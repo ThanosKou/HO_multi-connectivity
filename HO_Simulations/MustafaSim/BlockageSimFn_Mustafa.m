@@ -122,7 +122,7 @@ for indDisc=1:length(discovery_time)
             len =length(dataBS{indT});
             % here we can change exprnd to deterministic for real
             % simulation
-            dataBS{indT}(4,:) =  dt*ones(1,len);%exprnd(dt,1,len); % discovery duration
+            dataBS{indT}(4,:) = exprnd(dt,1,len); %dt*ones(1,len);%exprnd(dt,1,len); % discovery duration
             dataBS{indT}(5,:) = dataBS{indT}(3,:) + dataBS{indT}(4,:); % discovery time\
             %if a blocker arrives before the previous blocker served and the bs is discovered then that is a
             %one long blockage, for programming purposes we delete the second
