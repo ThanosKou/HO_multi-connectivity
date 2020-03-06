@@ -1,4 +1,6 @@
-outputs = dir(['blockages','*']);
+outputs_1 = dir(['blockages1/blockages','*']);
+outputs_2 = dir(['blockages2/blockages','*']);
+outputs = [outputs_1; outputs_2];
 num_files = length(outputs);
 
 
@@ -13,7 +15,7 @@ file_mean_blockages = zeros(length(discovery),length(preparation),length(density
 
 for ii=1:num_files
     ii
-    aa = load(outputs(ii).name);
+    aa = load([outputs(ii).folder,'/',outputs(ii).name]);
     for idxD = 1:length(discovery)
         for idxP = 1:length(preparation)
             for idxBL = 1:length(densityBL)
