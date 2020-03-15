@@ -9,7 +9,7 @@ R = 100; %m Radius
 discoveryTimes=[1,5,20,200,1000]*10^(-3);
 discoveryTime=[1,5,20,200,1000]*10^(-3) + 1/mu;
 discovery = 1./discoveryTime;
-preparationTime = [10 100]*10^-3;
+preparationTime = [10 20]*10^-3;
 preparation = 1./preparationTime;
 densityBL = [0.01,0.1];
 C = 2*V*densityBL*frac/pi;
@@ -17,6 +17,7 @@ blArrivalRate = 2*C*R/3;
 lambdaBS = [200,300,400,500]*10^(-6);
 outsideselfBlockageAngel = 5/6;
 connectivity = [1 2 3 4];
+%%
 for ii=1:length(lambdaBS)
     n = outsideselfBlockageAngel*pi*lambdaBS(ii)*R^2;
     for jj=1:length(blArrivalRate)
@@ -27,7 +28,7 @@ for ii=1:length(lambdaBS)
                 mu_prime = discovery(dt);
                 for dw = 1:length(preparation)
                     w = preparation(dw);
-                    if  cc == 1
+                    if  k == 1
                         q = a/(a+mu_prime);
                         P_OS_UB(ii,jj,cc,dt,dw) = (1-(w/(a+w))*(1-exp(-(1-q)*n))-exp(-n))/(1-exp(-n));
                         P_OS_LB(ii,jj,cc,dt,dw) = (1-(w/(a+w))*(1-exp(-(1-q)*n))-exp(-n))/(1-exp(-n));
@@ -42,7 +43,7 @@ for ii=1:length(lambdaBS)
                         P_OS_UB(ii,jj,cc,dt,dw) = double((exp(-n))/(1-exp(-n))*(symsum((qq*n)^d/factorial(d),d,1,k)+ ...
                             symsum((q*n)^d/factorial(d),d,k+1,Inf)+chi*symsum((n)^d/factorial(d),d,k+1,Inf)));
                         P_OS_LB(ii,jj,cc,dt,dw) = double((exp(-n))/(1-exp(-n))*(symsum((qq*n)^d/factorial(d),d,1,k)+ ...
-                            symsum((1+d*mu_prime/(k*(a+w)))*(q*n)^d/factorial(d),d,k+1,Inf)+((a*frac3)/(k*w))*symsum((qq*n)^d/factorial(d-1),d,k+1,Inf)));
+                            symsum((1+d*mu_prime*(k-1)/(k*(a+w)))*(q*n)^d/factorial(d),d,k+1,Inf)+((a*frac3)/(w))*symsum((qq*n)^d/factorial(d),d,k+1,Inf)));
                     end
                 end
             end
@@ -85,7 +86,7 @@ title(['High Blocker Density w= ',num2str(preparationTime(w)),' K= ', num2str(K_
 %%
 
 D_BL =1;
-dt = 1;
+dt = 5;
 w=1;
 figure()
 
