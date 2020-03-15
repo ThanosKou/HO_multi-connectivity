@@ -49,7 +49,7 @@ end
 
 
 Description = 'The blockages is a cell array of 6 dimension where 1st dimension is index for discovery, 2nd for preperation, 3rd for Base Station Desity, 4th is Connectivity, 5th is  blocker density, 6th is the individual files. Each element of this cell is an array where each blockage event duration is recorded. The mean blockages is 5 dimensional and the average blockage duration over all the files recorded according to the first 5 parameters of aforomentioned cell.'
-save(strcat('BlockageData.mat'),'mean_blockages','discovery','preparation','densityBL','densityBS','connectivity','Description')
+save(strcat('BlockageDatav2.mat'),'mean_blockages','discovery','preparation','densityBL','densityBS','connectivity','Description')
 % save(strcat('AllBlockageData.mat'),'blockages','mean_blockages','discovery','preparation','densityBL','densityBS','connectivity','Description' , '-v7.3')
 
 
