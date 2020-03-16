@@ -255,12 +255,12 @@ final_results2 = final_results;
 
 load('NoRLF_BlockageDurationTheoryResults.mat')
 
-D_BL =2;
-dt = 1;
-w=1;
+D_BL =1;
+dt = 5;
+w=2;
 figure()
 
-K_1=3;
+K_1=4;
 semilogy(lambda_BS, reshape(final_results1(dt,w,:,K_1,D_BL),[],1),'-+r')
 hold on;
 grid on;
@@ -276,9 +276,9 @@ ylabel('Out-of-service duration (sec)')
 xlabel('BS Density (BSs/km^2)')
 
 figure()
-D_BL=1;
+D_BL=2;
 
-K_1=3;
+K_1=4;
 semilogy(lambda_BS, reshape(final_results1(dt,w,:,K_1,D_BL),[],1),'-+r')
 hold on;
 grid on;
