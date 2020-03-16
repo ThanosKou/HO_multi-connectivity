@@ -114,7 +114,18 @@ for indT = 1:nT
     len =length(dataBS{indT});
     dataBS{indT}(2,:) =  exprnd(1/mu,1,len); % block duration
     dataBS{indT}(3,:) =  dataBS{indT}(2,:) + dataBS{indT}(1,:); % block duration
+    %if a blocker arrives before the previous blocker served then that is a
+    %one long blockage, for programming purposes we delete the second
+    %arrival and make one long combined blockage
+    for jj=len:-1:2
+        if dataBS{indT}(3,jj-1) >= dataBS{indT}(1,jj)
+            dataBS{indT}(3,jj-1) = max(dataBS{indT}(3,jj),dataBS{indT}(3,jj-1));
+            dataBS{indT}(:,jj) = [];
+        end
+    end
 end
+
+choose = @(samples) samples(randi(numel(samples))); % function to choose randomly an element from a set
 
 
 %% Thanos & Rajeev, FIBR work
@@ -128,12 +139,23 @@ for indDisc=1:length(discovery_time)
     tic 
     dt = discovery_time(indDisc);
     for indPrep = 1:length(preparation_time)
+        len =length(dataBS{indT});
         idle_antennas = 0;
         w = preparation_time(indPrep);
         servBS = zeros(4,nT);
-
-        choose = @(samples) samples(randi(numel(samples))); % function to choose randomly an element from a set
-
+        dataBS{indT}(4,:) =  dt*ones(1,len);%exprnd(dt,1,len); % discovery duration
+        dataBS{indT}(5,:) = dataBS{indT}(3,:) + dataBS{indT}(4,:); % discovery time
+        %if a blocker arrives before the previous blocker served and the bs is discovered then that is a
+        %one long blockage, for programming purposes we delete the second
+        %arrival and make one long combined blockage and find the
+        %discovery time
+        for jj=len:-1:2
+            if dataBS{indT}(5,jj-1) >= dataBS{indT}(1,jj)
+                dataBS{indT}(5,jj-1) = max(dataBS{indT}(5,jj),dataBS{indT}(5,jj-1));
+                dataBS{indT}(:,jj) = [];
+            end
+        end
+        
         tt = ones(1,nT); %loop index for all BSs
         timestamp = 0;
         actions = [];
@@ -147,7 +169,7 @@ for indDisc=1:length(discovery_time)
                     timestamp = simTime; % was there for a bug, doesn't happen anymore
                     continue
                 else
-                        timestamp = x;
+                    timestamp = x;
                 end 
 
                 if strcmp(actions(action_index).fnc,'add') % if next action is "add"
@@ -155,8 +177,8 @@ for indDisc=1:length(discovery_time)
                         newBS = choose(NONBSSET); % pick a random BS and add it to the set 
                         % Need to check if this BS is currently blocked
                         numArrivals = sum(dataBS{newBS}(1,:) <= timestamp);
-                        numDepart = sum(dataBS{newBS}(3,:) <= timestamp);
-                        C = dataBS{newBS}(3,:);
+                        numDepart = sum(dataBS{newBS}(5,:) <= timestamp);
+                        C = dataBS{newBS}(5,:);
                         if ~isempty(C(C < timestamp))
                             endBlockage = max(C(C < timestamp));
                         else 
