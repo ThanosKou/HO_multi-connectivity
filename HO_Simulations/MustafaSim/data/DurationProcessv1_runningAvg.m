@@ -15,7 +15,7 @@ mean_blockages = zeros(length(discovery),length(preparation),length(densityBS),l
 % all the u0s initalized as zeros
 k = zeros(length(discovery),length(preparation),length(densityBS),length(connectivity),length(densityBL));
 % all the ks initalized as 0; when got  first value will become one.
-
+sum = zeros(length(discovery),length(preparation),length(densityBS),length(connectivity),length(densityBL));
 for ii=1:num_files
     ii
     aa = load([outputs(ii).folder,'/',outputs(ii).name]);
@@ -29,8 +29,7 @@ for ii=1:num_files
                         else
                             k(idxD,idxP,idxBS,idxK,idxBL) = k(idxD,idxP,idxBS,idxK,idxBL) + 1;
                             xk = mean(aa.blockageDurations{idxBS,idxK,idxBL}{idxD,idxP});
-                            uk_1 = mean_blockages(idxD,idxP,idxBS,idxK,idxBL);
-                            mean_blockages(idxD,idxP,idxBS,idxK,idxBL) = uk_1 + (1/k(idxD,idxP,idxBS,idxK,idxBL)) * (xk - uk_1);
+                            sum(idxD,idxP,idxBS,idxK,idxBL) = sum(idxD,idxP,idxBS,idxK,idxBL) + xk;
                         end
                     end
                 end
@@ -39,10 +38,10 @@ for ii=1:num_files
     end
 end
 
-
+mean_blockages = sum ./ k;
 
 Description = 'The blockages is a cell array of 6 dimension where 1st dimension is index for discovery, 2nd for preperation, 3rd for Base Station Desity, 4th is Connectivity, 5th is  blocker density, 6th is the individual files. Each element of this cell is an array where each blockage event duration is recorded. The mean blockages is 5 dimensional and the average blockage duration over all the files recorded according to the first 5 parameters of aforomentioned cell.'
-save(strcat('BlockageData_RunAvg.mat'),'mean_blockages','discovery','preparation','densityBL','densityBS','connectivity','Description')
+save(strcat('BlockageData_sum_divide.mat'),'mean_blockages','discovery','preparation','densityBL','densityBS','connectivity','num_files','Description')
 % save(strcat('AllBlockageData.mat'),'blockages','mean_blockages','discovery','preparation','densityBL','densityBS','connectivity','Description' , '-v7.3')
 
 
