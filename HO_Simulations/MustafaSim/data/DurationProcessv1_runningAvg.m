@@ -1,5 +1,5 @@
-outputs_1 = dir(['blockages1/blockages','*']);
-outputs_2 = dir(['blockages2/blockages','*']);
+outputs_1 = dir(['blockages1000_9999/blockages','*']);
+outputs_2 = dir(['blockages10k_15999/blockages','*']);
 outputs = [outputs_1; outputs_2];
 num_files = length(outputs);
 
