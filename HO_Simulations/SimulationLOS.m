@@ -18,7 +18,8 @@ if(isempty(aID))
   warning('aID is empty. Replacing it with 1.')  
   aID = '1'; %Runs only for first value of AP density when aID=1
 end
-rng('shuffle');
+% rng('shuffle');
+rng(str2num(aID),'twister');
 
 % considerLOS=0;
 % considerNLOS=1;

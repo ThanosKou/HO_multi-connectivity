@@ -1,5 +1,5 @@
-outputs = dir(['output','*']);
-num_files = length(outputs);
+outputs = dir(['./outputs/out','*']);
+num_files = length(outputs)
 
 
 discovery = [1 5 20 200 1000]*10^(-3);
@@ -12,11 +12,11 @@ results_array = zeros(length(discovery),length(preparation),length(densityBS),le
  
 
 for ii=1:num_files
-    ii
-    aa = load(outputs(ii).name);
+    ii;
+    aa = load([outputs(ii).folder,'/',outputs(ii).name]);
     results_array(:,:,:,:,:,ii) = aa.finaldata;
 end
 
 final_results = mean(results_array,6);
 
-save(strcat('finalresults.mat'),'final_results','discovery','preparation','densityBL','densityBS','connectivity')
+save(strcat('finalresults_4000-5997.mat'),'final_results','discovery','preparation','densityBL','densityBS','connectivity','results_array')

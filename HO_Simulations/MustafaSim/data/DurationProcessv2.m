@@ -1,4 +1,6 @@
-outputs = dir(['blockages','*']);
+outputs_1 = dir(['blockages1/blockages','*']);
+outputs_2 = dir(['blockages2/blockages','*']);
+outputs = [outputs_1; outputs_2];
 num_files = length(outputs);
 
 
@@ -12,19 +14,15 @@ blockages = cell(length(discovery),length(preparation),length(densityBS),length(
 % file_mean_blockages = zeros(length(discovery),length(preparation),length(densityBS),length(connectivity),length(densityBL),num_files);
 
 for ii=1:num_files
-    ii
-    aa = load(outputs(ii).name);
+    ii;
+    aa = load([outputs(ii).folder,'/',outputs(ii).name]);
     for idxD = 1:length(discovery)
         for idxP = 1:length(preparation)
             for idxBL = 1:length(densityBL)
                 for idxBS = 1:length(densityBS)
                     for idxK = 1:length(connectivity)
-                        blockages{idxD,idxP,idxBS,idxK,idxBL}{ii} = (aa.blockageDurations{idxBS,idxK,idxBL}{idxD,idxP});
-%                         if isempty(blockages{idxD,idxP,idxBS,idxK,idxBL})
-%                             file_mean_blockages(idxD,idxP,idxBS,idxK,idxBL,ii) = -1;
-%                         else
-%                             file_mean_blockages(idxD,idxP,idxBS,idxK,idxBL,ii) = mean(aa.blockageDurations{idxBS,idxK,idxBL}{idxD,idxP});
-%                         end
+                        blockages{idxD,idxP,idxBS,idxK,idxBL}{ii} = [sum(aa.blockageDurations{idxBS,idxK,idxBL}{idxD,idxP});length(aa.blockageDurations{idxBS,idxK,idxBL}{idxD,idxP})];
+                        blockages{idxD,idxP,idxBS,idxK,idxBL}{ii};
                     end
                 end
             end
@@ -39,7 +37,8 @@ for idxD = 1:length(discovery)
         for idxBL = 1:length(densityBL)
             for idxBS = 1:length(densityBS)
                 for idxK = 1:length(connectivity)
-                    mean_blockages(idxD,idxP,idxBS,idxK,idxBL) = mean(cell2mat(blockages{idxD,idxP,idxBS,idxK,idxBL}));
+                    aa = sum(cell2mat(blockages{idxD,idxP,idxBS,idxK,idxBL}),2);
+                    mean_blockages(idxD,idxP,idxBS,idxK,idxBL) = aa(1)/aa(2);
                 end
             end
         end
@@ -49,7 +48,7 @@ end
 
 
 Description = 'The blockages is a cell array of 6 dimension where 1st dimension is index for discovery, 2nd for preperation, 3rd for Base Station Desity, 4th is Connectivity, 5th is  blocker density, 6th is the individual files. Each element of this cell is an array where each blockage event duration is recorded. The mean blockages is 5 dimensional and the average blockage duration over all the files recorded according to the first 5 parameters of aforomentioned cell.'
-save(strcat('BlockageDatav2.mat'),'mean_blockages','discovery','preparation','densityBL','densityBS','connectivity','Description')
+save(strcat('BlockageData_combine_mean.mat'),'mean_blockages','discovery','preparation','densityBL','densityBS','connectivity','Description')
 % save(strcat('AllBlockageData.mat'),'blockages','mean_blockages','discovery','preparation','densityBL','densityBS','connectivity','Description' , '-v7.3')
 
 
