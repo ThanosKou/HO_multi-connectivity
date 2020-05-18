@@ -33,16 +33,18 @@ simTime = 4*60*60; %sec Total Simulation time
 % Note!!! simTime must be >100s else the code won't work :)
 tstep = 0.0001; %(sec) time step
 mu = 2; %Expected bloc dur =1/mu sec
-R = 100; %m Radius
+R = 100; % LOS Radius
+R_NLOS = 65; % NLOS Radius 
 
 discovery = [1 5 20 200 1000]*10^(-3);
 preparation = [10 20]*10^(-3);
-densityBL = [0.01 0.1];
+densityBL = [0.1 0.01];
 densityBS = [200 300 400 500]*10^(-6);
 connectivity = [1 2 3 4];
 
 
 nTorig = densityBS*pi*R^2;
+nTorig_NLOS = densityBS*pi*R_NLOS^2;
 omega = pi/3;
 
 s_input = cell(1,2); 
@@ -68,8 +70,11 @@ for indBS = 1:length(densityBS)
     nT = poissrnd(densityBS(indBS)*pi*R^2);
     %nT = floor(densityBS(indBS)*pi*R^2);
     rT = R*sqrt(rand(nT,1));%2*R/3 * ones(nT,1); %location of APs (distance from origin)
+    rT_NLOS = R*sqrt(rand(nT,1)); % R or R_NLOS
     alphaT = 2*pi*rand(nT,1);%location of APs (angle from x-axis)
+    alphaT_NLOS = 2*pi*rand(nT,1);%location of APs (angle from x-axis)
     BS_pos_stat = [rT,alphaT];
+    BS_pos_stat_NLOS = [rT_NLOS,alphaT_NLOS];
     for indT = 1:length(connectivity)
         currConnec = connectivity(indT);
         for indB = 1:length(densityBL) %for all blockers
@@ -79,6 +84,7 @@ for indBS = 1:length(densityBS)
             BS_input = struct('WANNAPLOT',wannaplot,...
                 'DEGREE_CONNECTIVITY', currConnec,...
                 'RADIUS_AROUND_UE',R,...
+                'NLOS_RADIUS',R_NLOS,...
                 'SIMULATION_TIME',simTime,...
                 'TIME_STEP',tstep,...
                 'MU',mu,...
@@ -87,6 +93,8 @@ for indBS = 1:length(densityBS)
                 'Original_NUM_AP',nT,...
                 'LOC_AP_DISTANCE', rT,... 
                 'LOC_AP_ANGLE',alphaT,...
+                'LOC_AP_DISTANCE_NLOS', rT_NLOS,... 
+                'LOC_AP_ANGLE_NLOS',alphaT_NLOS,...
                 'NUM_BL',nB,...
                 'DISCOVERY_TIME',discovery,...
                 'HO_PREP_TIME',preparation,...
