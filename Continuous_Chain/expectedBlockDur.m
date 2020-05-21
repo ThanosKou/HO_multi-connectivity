@@ -56,13 +56,14 @@ for indLambda=1:length(lambda_BS)
                     % Convergence for high w
                     EXP_OS_DUR_LARGE_OMEGA(indDt,indW,indLambda,indK,indBL) = 1000*(exp(-p*lambda*pi*R^2)/...
                         (mu*(1-exp(-p*lambda*pi*R^2)))*ei(p*lambda*pi*R^2));% In the Milliseconds
-
+                    EXP_OS_DUR_LARGE_K(indDt,indW,indLambda,indK,indBL) = 1000*(exp(-p*lambda*pi*R^2)/...
+                        (psi*(1-exp(-p*lambda*pi*R^2)))*ei(nu*p*lambda*pi*R^2));% In the Milliseconds
                 end 
             end 
         end 
     end
 end 
-save('NoRLF_BlockageDurationTheoryResults','EXP_OS_DUR')
+save('NoRLF_BlockageDurationTheoryResults','EXP_OS_DUR', 'EXP_OS_DUR_LARGE_OMEGA', 'EXP_OS_DUR_LARGE_K')
 
 
 

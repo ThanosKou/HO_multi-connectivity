@@ -65,6 +65,65 @@ save('P_OS_LB','P_OS_LB')
 
 
 %% RLF Probability (Theorem 2)
+clear; clc; close all
+
+V = 1; %velocity of blocker m/s
+hb = 1.8; %height blocker
+hr = 1.4; %height receiver (UE)
+ht = 5; %height transmitter (BS)
+frac = (hb-hr)/(ht-hr);
+mu = 2; %Expected bloc dur =1/mu sec
+R = 100; %m Radius
+p=5/6; %self-blockage probability
+
+
+discovery = [1 5 20 200 1000]*10^(-3);
+preparation = [10 20]*10^(-3);
+densityBL = [0.01 0.1];
+lambda_BS = [200 300 400 500]*10^(-6);
+connectivity = [1 2 3 4];
+
+
+syms m
+
+for indLambda=1:length(lambda_BS)
+    lambda = lambda_BS(indLambda);
+    for indK=1:length(connectivity)
+        K = connectivity(indK);
+        for indBL=1:length(densityBL)
+            BL_D = densityBL(indBL);
+            C = 2*V*BL_D*frac/pi;
+            alpha = C*2*R/3;
+            for indW=1:length(preparation)
+                w = 1/preparation(indW);
+                for indDt=1:length(discovery)
+                    dt = discovery(indDt);
+                    psi = 1/(1/mu + dt);
+                    c = alpha/(alpha+w) + alpha/(alpha + psi)*w/(alpha+w);
+                    c_tilde = 1-c;
+                    q_tilde = alpha/(alpha + psi);
+                    q = 1- q_tilde;
+                    % let's trry with the lower bound instead
+                    P_OS_LARGE_K(indDt,indW,indLambda,indBL) = (exp(-c_tilde*p*lambda*pi*R^2)-exp(-p*lambda*pi*R^2))/(1-exp(-p*lambda*pi*R^2)); 
+                    P_OS_LARGE_omega(indDt,indW,indLambda,indBL) = (exp(-q*p*lambda*pi*R^2)-exp(-p*lambda*pi*R^2))/(1-exp(-p*lambda*pi*R^2)); 
+                end 
+            end 
+        end 
+    end
+end 
+save('LARGE_K_OOS','P_OS_LARGE_K')
+save('LARGE_OMEGA','P_OS_LARGE_omega')
+
+
+
+
+
+
+
+
+
+
+
 
 
 
