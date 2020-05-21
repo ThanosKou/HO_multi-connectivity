@@ -34,6 +34,7 @@ simTime = 4*60*60; %sec Total Simulation time
 tstep = 0.0001; %(sec) time step
 mu = 2; %Expected bloc dur =1/mu sec
 R = 100; % LOS Radius
+include_NLOS = 0; % to include NLOS paths, change from 0 to 1.
 R_NLOS = 65; % NLOS Radius 
 
 discovery = [1 5 20 200 1000]*10^(-3);
@@ -71,13 +72,15 @@ for indBS = 1:length(densityBS)
     rT = R*sqrt(rand(nT,1));%2*R/3 * ones(nT,1); %location of APs (distance from origin)
     alphaT = 2*pi*rand(nT,1);%location of APs (angle from x-axis)
     %nT = floor(densityBS(indBS)*pi*R^2);
-    nT_NLOS = sum(rT<=R_NLOS); % only the LOS BS with distance <= R_NLOS will have NLOS paths
-    rT_NLOS = R*sqrt(rand(nT_NLOS,1)); % R or R_NLOS 
-    alphaT_NLOS = 2*pi*rand(nT_NLOS,1);%location of APs (angle from x-axis)
-    
-    rT = [rT;rT_NLOS];
-    alphaT = [alphaT;alphaT_NLOS];
-    nT = nT+nT_NLOS;  
+    if include_NLOS == 1
+        nT_NLOS = sum(rT<=R_NLOS); % only the LOS BS with distance <= R_NLOS will have NLOS paths
+        rT_NLOS = R*sqrt(rand(nT_NLOS,1)); % R or R_NLOS 
+        alphaT_NLOS = 2*pi*rand(nT_NLOS,1);%location of APs (angle from x-axis)
+
+        rT = [rT;rT_NLOS];
+        alphaT = [alphaT;alphaT_NLOS];
+        nT = nT+nT_NLOS;  
+    end 
     BS_pos_stat = [rT,alphaT];
     for indT = 1:length(connectivity)
         currConnec = connectivity(indT);
