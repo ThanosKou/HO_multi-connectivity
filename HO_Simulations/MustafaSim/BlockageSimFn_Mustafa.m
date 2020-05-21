@@ -23,9 +23,6 @@ nB = BS_input.NUM_BL; %number of blokers
 rT =BS_input.LOC_AP_DISTANCE; %location of APs
 alphaTorig = BS_input.LOC_AP_ANGLE;%location of APs
 
-R_NLOS = BS_input.NLOS_RADIUS;
-rT_NLOS =BS_input.LOC_AP_DISTANCE_NLOS; %location of APs
-alphaTorig_NLOS = BS_input.LOC_AP_ANGLE_NLOS;%location of APs
 
 frac = BS_input.FRACTION;
 omega = BS_input.SELF_BL_ANGLE_OMEGA;
@@ -43,24 +40,10 @@ if(nT==0)
     return;
 end % Dealing zero APs
 
-%%Implementing self-blockage
-tempInd_NLOS =  find(alphaTorig_NLOS>=omega & rT_NLOS <=R_NLOS); %These BSs are not blocked by self-blockage
-xT_NLOS = rT_NLOS(tempInd_NLOS).*cos(alphaTorig(tempInd_NLOS));%location of APs (distance)
-yT_NLOS = rT_NLOS(tempInd_NLOS).*sin(alphaTorig(tempInd_NLOS));%location of APs (angle)
-nT_NLOS = length(tempInd_NLOS); % number of BS not blocked by self-blockage
-alpha_NLOS = alphaTorig_NLOS(tempInd_NLOS);
-
-xT = [xT;xT_NLOS];
-yT = [yT;yT_NLOS];
-nT = nT + nT_NLOS;
-%tempInd = [tempInd;tempInd_NLOS];
-
 xTfrac = frac*xT; %blockage zone around UE for each APs
 yTfrac = frac*yT;
 locT = [xTfrac';yTfrac']; %2 rows for x and y, nT columns
 alphaT = [alpha;alpha_NLOS]; %angle from x-axis for BS not blocked by self-bl
-
-
 
 simTime = BS_input.SIMULATION_TIME; %sec Total Simulation time
 mu = BS_input.MU; %Expected bloc dur =1/mu
