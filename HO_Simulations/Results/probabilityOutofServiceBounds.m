@@ -17,7 +17,8 @@ blArrivalRate = 2*C*R/3;
 lambdaBS = [200,300,400,500]*10^(-6);
 outsideselfBlockageAngel = 5/6;
 connectivity = [1 2 3 4];
-%%
+RLF_timer = 0.03;
+
 for ii=1:length(lambdaBS)
     n = outsideselfBlockageAngel*pi*lambdaBS(ii)*R^2;
     for jj=1:length(blArrivalRate)
@@ -26,24 +27,31 @@ for ii=1:length(lambdaBS)
             k = connectivity(cc);
             for dt=1:length(discovery)
                 mu_prime = discovery(dt);
+                ksi = exp(-mu_prime*RLF_timer);
                 for dw = 1:length(preparation)
                     w = preparation(dw);
                     if  k == 1
                         q = a/(a+mu_prime);
                         P_OS_UB(ii,jj,cc,dt,dw) = (1-(w/(a+w))*(1-exp(-(1-q)*n))-exp(-n))/(1-exp(-n));
                         P_OS_LB(ii,jj,cc,dt,dw) = (1-(w/(a+w))*(1-exp(-(1-q)*n))-exp(-n))/(1-exp(-n));
+                        P_RLF_LB(ii,jj,cc,dt,dw) = P_OS_LB(ii,jj,cc,dt,dw).*exp(-k*w*RLF_timer) + ...
+                            exp(-n)/(1-exp(-n)).*(exp(ksi*q*n) - exp(-k*w*RLF_timer)*(exp(q*n) - 1) - 1);
+                        P_RLF_Large_omega(ii,jj,cc,dt,dw) = double(exp(-(1-ksi*q)*n)-exp(-n)/(1-exp(-n)));
                     else
                         qq = a/(a+w) + (a/(a+mu_prime))*(w/(a+w));
-                         q = a/(a+mu_prime);
-                         frac1 = mu_prime/(a+w);
-                         frac2 = q*frac1;
-                         frac3 = (mu_prime*w)/(a*(a+w+mu_prime));
+                        q = a/(a+mu_prime);
+                        frac1 = mu_prime/(a+w);
+                        frac2 = q*frac1;
+                        frac3 = (mu_prime*w)/(a*(a+w+mu_prime));
                         chi = k/2*(q^k*frac1 + qq^(k-1)*frac2);
                         syms d
                         P_OS_UB(ii,jj,cc,dt,dw) = double((exp(-n))/(1-exp(-n))*(symsum((qq*n)^d/factorial(d),d,1,k)+ ...
                             symsum((q*n)^d/factorial(d),d,k+1,Inf)+chi*symsum((n)^d/factorial(d),d,k+1,Inf)));
                         P_OS_LB(ii,jj,cc,dt,dw) = double((exp(-n))/(1-exp(-n))*(symsum((qq*n)^d/factorial(d),d,1,k)+ ...
                             symsum((1+d*mu_prime*(k-1)/(k*(a+w)))*(q*n)^d/factorial(d),d,k+1,Inf)+((a*frac3)/(w))*symsum((qq*n)^d/factorial(d),d,k+1,Inf)));
+                        P_RLF_LB(ii,jj,cc,dt,dw) = double(P_OS_LB(ii,jj,cc,dt,dw).*exp(-k*w*RLF_timer) + ...
+                            exp(-n)/(1-exp(-n)).*(exp(ksi*q*n) - exp(-k*w*RLF_timer)*(exp(q*n) - 1) - 1));
+                        P_RLF_Large_omega(ii,jj,cc,dt,dw) = double(exp(-(1-ksi*q)*n)-exp(-n)/(1-exp(-n)));
                     end
                 end
             end
@@ -52,6 +60,8 @@ for ii=1:length(lambdaBS)
 end
 save('P_OS_UB','P_OS_UB')
 save('P_OS_LB','P_OS_LB')
+save('P_RLF_LB','P_RLF_LB')
+save('P_RLF_Large_omega','P_RLF_Large_omega')
 
 
 %% Plot Results
