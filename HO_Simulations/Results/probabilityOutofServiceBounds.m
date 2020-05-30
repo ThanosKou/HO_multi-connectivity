@@ -34,8 +34,8 @@ for ii=1:length(lambdaBS)
                         q = a/(a+mu_prime);
                         P_OS_UB(ii,jj,cc,dt,dw) = (1-(w/(a+w))*(1-exp(-(1-q)*n))-exp(-n))/(1-exp(-n));
                         P_OS_LB(ii,jj,cc,dt,dw) = (1-(w/(a+w))*(1-exp(-(1-q)*n))-exp(-n))/(1-exp(-n));
-                        P_RLF_LB(ii,jj,cc,dt,dw) = P_OS_LB(ii,jj,cc,dt,dw).*exp(-k*w*RLF_timer) + ...
-                            exp(-n)/(1-exp(-n)).*(exp(ksi*q*n) - exp(-k*w*RLF_timer)*(exp(q*n) - 1) - 1);
+                        P_RLF_LB(ii,jj,cc,dt,dw) = P_OS_LB(ii,jj,cc,dt,dw).*exp(-w*RLF_timer) + ...
+                            exp(-n)/(1-exp(-n)).*(exp(ksi*q*n) - exp(-w*RLF_timer)*(exp(q*n) - 1) - 1);
                         P_RLF_Large_omega(ii,jj,cc,dt,dw) = double(exp(-(1-ksi*q)*n)-exp(-n)/(1-exp(-n)));
                     else
                         qq = a/(a+w) + (a/(a+mu_prime))*(w/(a+w));
@@ -49,8 +49,8 @@ for ii=1:length(lambdaBS)
                             symsum((q*n)^d/factorial(d),d,k+1,Inf)+chi*symsum((n)^d/factorial(d),d,k+1,Inf)));
                         P_OS_LB(ii,jj,cc,dt,dw) = double((exp(-n))/(1-exp(-n))*(symsum((qq*n)^d/factorial(d),d,1,k)+ ...
                             symsum((1+d*mu_prime*(k-1)/(k*(a+w)))*(q*n)^d/factorial(d),d,k+1,Inf)+((a*frac3)/(w))*symsum((qq*n)^d/factorial(d),d,k+1,Inf)));
-                        P_RLF_LB(ii,jj,cc,dt,dw) = double(P_OS_LB(ii,jj,cc,dt,dw).*exp(-k*w*RLF_timer) + ...
-                            exp(-n)/(1-exp(-n)).*(exp(ksi*q*n) - exp(-k*w*RLF_timer)*(exp(q*n) - 1) - 1));
+                        P_RLF_LB(ii,jj,cc,dt,dw) = double(P_OS_LB(ii,jj,cc,dt,dw).*exp(-w*RLF_timer) + ...
+                            exp(-n)/(1-exp(-n)).*(exp(ksi*q*n) - exp(-w*RLF_timer)*(exp(q*n) - 1) - 1));
                         P_RLF_Large_omega(ii,jj,cc,dt,dw) = double(exp(-(1-ksi*q)*n)-exp(-n)/(1-exp(-n)));
                     end
                 end
