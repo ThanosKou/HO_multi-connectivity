@@ -1,0 +1,9 @@
+# Ignore everything in this directory
+*
+# Except this file
+!.gitignore
+!ProcessData.m
+!myplot.m
+!DurationProcessv1.m
+!DurationProcessv2.m
+!DurationProcessv1_runningAvg.m
