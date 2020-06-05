@@ -690,8 +690,8 @@ title(['\Delta= ',num2str(preparation(w)),' \Omega= ', num2str(discovery(dt))],'
 %% expected out-of-service duration
 clear; close all;
 discovery = [1 5 20 200 1000]*10^(-3);
-preparation = [10 20]*10^(-3);
-densityBL = [0.1 0.01];
+preparation = [5 10 15 20 100]*10^(-3);
+densityBL = [0.01 0.1];
 connectivity = [1 2 3 10];
 
 load('finalresults_4000-6998.mat')
@@ -709,6 +709,13 @@ load('BlockageData_combine_mean.mat')
 final_results1 = 1000*mean_blockages;
 
 load('NoRLF_BlockageDurationTheoryResults.mat')
+load('T_OS')
+
+discovery = [1 5 20 200 1000]*10^(-3);
+preparation = [5 10 15 20 100]*10^(-3);
+densityBL = [0.01 0.1];
+connectivity = [1 2 3 10];
+T_OS = 1000*T_OS; % ms
 D_BL =2;
 dt = 1;
 w=1;
@@ -721,7 +728,7 @@ markertype = {'r*','go','bs','m+'};
 
 K_to_plot = [1,4];
 dt_to_plot = [1,4];
-w_to_plot = [1,2];
+w_to_plot = [2,4];
 for ii=1:length(K_to_plot)
     for jj=1:length(dt_to_plot)
         for kk=1:length(w_to_plot)
@@ -731,7 +738,8 @@ for ii=1:length(K_to_plot)
             hold on
             grid on
             linestring = [linetype{ii},markertype{2*(jj-1)+kk}];
-            semilogy(lambda_BS,reshape(EXP_OS_DUR(dt,w,:,K_1,D_BL),[],1),linestring,...
+            %semilogy(lambda_BS,reshape(EXP_OS_DUR(dt,w,:,K_1,D_BL),[],1),linestring,...
+            semilogy(lambda_BS,T_OS(:,K_1,w,dt,D_BL),linestring,...
                 'LineWidth',2,...
                 'DisplayName',[ 'K = ',num2str(K_1), ...
                 ', \Omega = ', num2str(1000*preparation(w)), ' ms',...
@@ -739,6 +747,7 @@ for ii=1:length(K_to_plot)
         end
     end
 end
+%T_OS(:,K_1,w,dt,D_BL)
 title(['a) \lambda_B = 0.1 bl/m^2'] )
 ylabel('Out-of-service duration (ms)')
 xlabel('BS Density (BSs/km^2)')
@@ -755,7 +764,8 @@ for ii=1:length(K_to_plot)
             hold on
             grid on
             linestring = [linetype{ii},markertype{2*(jj-1)+kk}];
-            semilogy(lambda_BS(3:4),reshape(EXP_OS_DUR(dt,w,3:4,K_1,D_BL),[],1),linestring,...
+            %semilogy(lambda_BS(3:4),reshape(EXP_OS_DUR(dt,w,3:4,K_1,D_BL),[],1),linestring,...
+            semilogy(lambda_BS(3:4),T_OS(3:4,K_1,w,dt,D_BL),linestring,...
                 'LineWidth',2,...
                 'DisplayName',[ 'K = ',num2str(K_1), ...
                 ', \Omega = ', num2str(1000*preparation(w)), ' ms',...
@@ -778,7 +788,8 @@ for ii=1:length(K_to_plot)
             hold on
             grid on
             linestring = [linetype{ii},markertype{2*(jj-1)+kk}];
-            semilogy(lambda_BS,reshape(EXP_OS_DUR(dt,w,:,K_1,D_BL),[],1),linestring,...
+            %semilogy(lambda_BS,reshape(EXP_OS_DUR(dt,w,:,K_1,D_BL),[],1),linestring,...
+            semilogy(lambda_BS,T_OS(:,K_1,w,dt,D_BL),linestring,...
                 'LineWidth',2,...
                 'DisplayName',[ 'K = ',num2str(K_1), ...
                 ', \Omega = ', num2str(1000*preparation(w)), ' ms',...
@@ -808,7 +819,8 @@ for ii=1:length(K_to_plot)
             hold on
             grid on
             linestring = [linetype{ii},markertype{2*(jj-1)+kk}];
-            semilogy(lambda_BS(3:4),reshape(EXP_OS_DUR(dt,w,3:4,K_1,D_BL),[],1),linestring,...
+            %semilogy(lambda_BS(3:4),reshape(EXP_OS_DUR(dt,w,3:4,K_1,D_BL),[],1),linestring,...
+            semilogy(lambda_BS(3:4),T_OS(3:4,K_1,w,dt,D_BL),linestring,...
                 'LineWidth',2,...
                 'DisplayName',[ 'K = ',num2str(K_1), ...
                 ', \Omega = ', num2str(1000*preparation(w)), ' ms',...

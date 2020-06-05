@@ -1,4 +1,7 @@
-function [p_out_mxk] = P_out_mxk(M,K,alpha,psi,w)
+function [outage_state_probs] = P_out_mxk(M,K,alpha,psi,w)
+
+% Returns a vector of the oos probabilities ordered as P[0,0],P[1,0]...,P[M,0]
+
 a = alpha;
 psi = psi;
 w = w;
@@ -51,6 +54,10 @@ B = zeros(num_states+1,1);
 B(num_states+1)=1;
 X = mldivide(MM,B);
 
-p_out_mxk = sum(X([chain_states.right]==0));;
+outage_state_probs = X([chain_states.right]==0);
+left_indexes = [chain_states([chain_states.right]==0).left];
+[~,b] = sort(left_indexes);
+outage_state_probs = outage_state_probs(b);
+
 end
 
