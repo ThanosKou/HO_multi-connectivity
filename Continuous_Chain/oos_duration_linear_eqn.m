@@ -15,7 +15,7 @@ C = 2*V.*lambda_B*frac/pi;
 
 
 lambda_BS = [200 300 400 500]*10^(-6); %densityBS
-density_limits = [30,40,50,60];
+density_limits = [60,60,60,60];
 K_list = [1,2,3,4];                      % Degree of Connectivity
 w_list = 1000./[5,10,15,20,100]; %1000./[10,15,25,30,70,200,1000];      %Connection establishment times
 dt_list = 1000./[1,5,20,200,1000];   %Discovery Times
