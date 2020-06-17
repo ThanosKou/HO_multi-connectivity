@@ -709,10 +709,10 @@ load('BlockageData_combine_mean.mat')
 final_results1 = 1000*mean_blockages;
 
 load('NoRLF_BlockageDurationTheoryResults.mat')
-load('T_OS')
+load('T_OS_little_mmck.mat')
 
 discovery = [1 5 20 200 1000]*10^(-3);
-preparation = [5 10 15 20 100]*10^(-3);
+preparation = [10 20]*10^(-3);
 densityBL = [0.01 0.1];
 connectivity = [1 2 3 10];
 T_OS = 1000*T_OS; % ms
@@ -728,7 +728,7 @@ markertype = {'r*','go','bs','m+'};
 
 K_to_plot = [1,4];
 dt_to_plot = [1,4];
-w_to_plot = [2,4];
+w_to_plot = [1,2];
 for ii=1:length(K_to_plot)
     for jj=1:length(dt_to_plot)
         for kk=1:length(w_to_plot)
