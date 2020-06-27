@@ -709,7 +709,7 @@ load('BlockageData_combine_mean.mat')
 final_results1 = 1000*mean_blockages;
 
 load('NoRLF_BlockageDurationTheoryResults.mat')
-load('T_OS_little_mmck.mat')
+load('T_OS_thanos_avg.mat')
 
 discovery = [1 5 20 200 1000]*10^(-3);
 preparation = [10 20]*10^(-3);
@@ -726,7 +726,7 @@ subplot(121)
 linetype = {'-',':'};
 markertype = {'r*','go','bs','m+'};
 
-K_to_plot = [1,4];
+K_to_plot = [3,4];
 dt_to_plot = [1,4];
 w_to_plot = [1,2];
 for ii=1:length(K_to_plot)
@@ -817,7 +817,7 @@ clear; close all;
 discovery = [1 5 20 200 1000]*10^(-3);
 preparation = [10 20]*10^(-3);
 densityBL = [0.01 0.1];
-connectivity = [1 2 3 10];
+connectivity = [1 2 3 4];
 
 load('finalresults_4000-6998.mat')
 load('NoRLF_Numerical-Results.mat')
@@ -834,6 +834,7 @@ load('BlockageData_combine_mean.mat')
 final_results1 = 1000*mean_blockages;
 
 load('NoRLF_BlockageDurationTheoryResults.mat')
+load('NoRLF_BlockageDurationTheoryResults_LowerBound.mat')
 
 discovery = [1 5 20 200 1000]*10^(-3);
 preparation = [ 10 20]*10^(-3);
@@ -850,7 +851,7 @@ subplot(121)
 linetype = {'-',':'};
 markertype = {'r*','go','bs','m+'};
 
-K_to_plot = [1,4];
+K_to_plot = [1,2];
 dt_to_plot = [1,4];
 w_to_plot = [1,2];
 for ii=1:length(K_to_plot)
@@ -863,7 +864,7 @@ for ii=1:length(K_to_plot)
             grid on
             linestring = [linetype{ii},markertype{2*(jj-1)+kk}];
             %semilogy(lambda_BS,reshape(EXP_OS_DUR(dt,w,:,K_1,D_BL),[],1),linestring,...
-            semilogy(lambda_BS,reshape(EXP_OS_DUR(dt,w,:,K_1,D_BL),[],1),linestring,...
+            semilogy(lambda_BS,reshape(EXP_OS_DUR_LB(dt,w,:,K_1,D_BL),[],1),linestring,...
                 'LineWidth',2,...
                 'DisplayName',[ 'K = ',num2str(K_1), ...
                 ', \Omega = ', num2str(1000*preparation(w)), ' ms',...
@@ -891,7 +892,7 @@ for ii=1:length(K_to_plot)
             grid on
             linestring = [linetype{ii},markertype{2*(jj-1)+kk}];
             %semilogy(lambda_BS,reshape(EXP_OS_DUR(dt,w,:,K_1,D_BL),[],1),linestring,...
-            semilogy(lambda_BS,reshape(EXP_OS_DUR(dt,w,:,K_1,D_BL),[],1),linestring,...
+            semilogy(lambda_BS,reshape(EXP_OS_DUR_LB(dt,w,:,K_1,D_BL),[],1),linestring,...
                 'LineWidth',2,...
                 'DisplayName',[ 'K = ',num2str(K_1), ...
                 ', \Omega = ', num2str(1000*preparation(w)), ' ms',...
@@ -1018,4 +1019,68 @@ title(['b) \lambda_B = 0.01 bl/m^2'] )
 ylabel('Out-of-service duration (ms)')
 xlabel('BS Density (BSs/km^2)')
 set(gca, 'FontName','Times', 'fontsize',16)
+
+%% physical vs protocol
+clear;clc
+title('a) \lambda_B = 0.1 bl/m^2')
+legend();
+
+
+discovery = [1 5 20 200 1000]*10^(-3);
+preparation = [10 20]*10^(-3);
+densityBL = [0.01 0.1];
+lambda_BS = [200 300 400 500]*10^(-6);
+connectivity = [1 2 3 4];
+
+
+load('NoRLF_Numerical-Results.mat')
+load('P_Block_Physical.mat')
+load('P_Block_Protocol.mat')
+
+
+D_BL =1;
+dt = 1;
+w=2;
+linetype = {'-','--',':','-.'}
+markertype = {'r*','gp','bx','mo'}
+figure()
+
+semilogy(connectivity,squeeze(P_Block_Physical(1,D_BL,:,dt,w)),...
+            '--bs','MarkerSize',12,'LineWidth',2,...
+            'DisplayName',[ 'BS Density = ',num2str(1e6*lambda_BS(1)),'/km^2, ',...
+                            '\Delta = ',num2str(1000*discovery(dt)),' ms'])
+hold on;
+grid on;
+semilogy(connectivity,squeeze(P_Block_Protocol(1,D_BL,:,dt,w)),...
+    '--rd','MarkerSize',12,'LineWidth',2,...
+            'DisplayName',[ 'BS Density = ',num2str(1e6*lambda_BS(1)),'/km^2, ',...
+                            '\Delta = ',num2str(1000*discovery(dt)),' ms'])
+                        
+ 
+semilogy(connectivity,squeeze(P_Block_Physical(4,D_BL,:,dt,w)),...
+    '-.bs','MarkerSize',12,'LineWidth',2,...
+    'DisplayName',[ 'BS Density = ',num2str(1e6*lambda_BS(4)),'/km^2, ',...
+                            '\Delta = ',num2str(1000*discovery(dt)),' ms'])
+
+semilogy(connectivity,squeeze(P_Block_Protocol(4,D_BL,:,dt,w)),...
+    '-.rd','MarkerSize',12,'LineWidth',2,...
+    'DisplayName',[ 'BS Density = ',num2str(1e6*lambda_BS(4)),'/km^2, ',...
+                            '\Delta = ',num2str(1000*discovery(dt)),' ms'])
+                       
+
+xlabel('Degree of Connectivity')
+a = get(gca,'XTickLabel');
+set(gca,'XTickLabel',a,'FontName','Times','fontsize',16) 
+ylabel('Out-of-service probability')
+legend('Physical Blockage, BS Density = 200/km^2','Protocol Blockage, BS Density = 200/km^2','Physical Blockage, BS Density = 500/km^2','Protocol Blockage, BS Density = 500/km^2')
+x0=10;
+y0=10;
+width=500;
+height=450;
+set(gcf,'position',[x0,y0,width,height])
+h=get(gca)
+h.XTick = [1,2,3,4]
+set(gca,'FontName','Times','fontsize',16) 
+ylabel('Out-of-service probability')
+%title('\lambda_B = 0.01 bl/m^2, \Delta = 1 ms, \Omega=10 ms')
 
