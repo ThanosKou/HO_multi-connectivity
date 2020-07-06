@@ -210,11 +210,9 @@ for indLambda=1:length(lambda_BS)
                        K/2*(alpha/(alpha + w)+alpha/(alpha + psi).*w/(alpha + w)).^(K-1)...
                        .*(psi/(alpha + psi)+alpha/(alpha + w));
                     sum1 = double(1/(K*w)*symsum((p*lambda*pi*R^2)^m/...
-                        (factorial(m)*(1-nu^m/q_tilde^(m-K))),m,1,K));
+                        (factorial(m)),m,1,Inf));
                     %sum2 = double(symsum((1/(1+chi*q_tilde^(-m)))*(p*lambda*pi*R^2)^m/...
                      %   (m*factorial(m)*psi),m,K+1,Inf));
-                    sum2 = double(1/(K*w)*symsum((chi+q_tilde^m)/(chi+q_tilde^m-q_tilde^K)*(p*lambda*pi*R^2)^m/...
-                        factorial(m),m,K+1,Inf));
 %                     sum3 = double(1/(K*w)*double(symsum(m*(w/(w+m*psi)-1)*(p*lambda*pi*R^2)^m/...
 %                         factorial(m),m,1,K)));
 %                     sum4 = double(1/(K*w)*psi/(alpha+w)*...
@@ -222,7 +220,7 @@ for indLambda=1:length(lambda_BS)
 %                         factorial(m),m,K+1,Inf));
                     %sum3 = 1/(w);
                     EXP_OS_DUR_LB(indDt,indW,indLambda,indK,indBL) =  1000*(exp(-p*lambda*pi*R^2)/(1-exp(-p*lambda*pi*R^2)))*...
-                        (sum1+sum2);% In milliseconds
+                        (sum1);% In milliseconds
 
                 end 
             end 
@@ -290,8 +288,8 @@ for indLambda=1:length(lambda_BS)
                             .*(psi/(alpha + psi)+alpha/(alpha + w));
                         % sum1 = double(1/(K*w)*symsum((p*lambda*pi*R^2)^m/...
                             %    (factorial(m)*(1-nu^m)),m,1,Inf));
-                        sum1 = double(((alpha+psi+w)/(psi*w))*symsum((p*lambda*pi*R^2)^m/...
-                              (factorial(m)*m),m,1,K));
+                        sum1 = double(1/(K*w)*symsum((p*lambda*pi*R^2)^m/...
+                        (factorial(m)),m,1,Inf));
                         sum2 = double(1/(K*w*chi)*symsum((q_tilde^m+chi_m)*(p*lambda*pi*R^2)^m/...
                                 factorial(m),m,K+1,Inf));
                         EXP_OS_DUR_LB(indDt,indW,indLambda,indK,indBL) =  1000*(exp(-p*lambda*pi*R^2)/(1-exp(-p*lambda*pi*R^2)))*...
@@ -305,7 +303,7 @@ end
 save('NoRLF_BlockageDurationTheoryResults_LowerBound','EXP_OS_DUR_LB')
 
 
-%% Little's law Thanos-Rajeev Approach
+%% Little's law Mustafa kekw Approach
 clear; clc; close all
 
 V = 1; %velocity of blocker m/s
@@ -354,22 +352,10 @@ for indLambda=1:length(lambda_BS)
                         %nu = (alpha + w)/(alpha + w + psi);
                         % let's try with the lower bound instead
                         syms m
-                        theta = alpha/(alpha+w)+alpha/(alpha+psi)*w/(alpha+w);
-                        eta = psi/(alpha+w);
-                        chi_m = m*(K-1)/K*(alpha/(alpha + psi))^m*psi/(alpha + w) + ...
-                                m/K*(alpha/(alpha + w)*+alpha/(alpha + psi).*w/(alpha + w)).^(m-1)...
-                                .*(psi/(alpha + psi).*alpha/(alpha + w));
-                        chi = K/2*(alpha/(alpha + psi))^K*psi/(alpha + w) + ...
-                            K/2*(alpha/(alpha + w)+alpha/(alpha + psi).*w/(alpha + w)).^(K-1)...
-                            .*(psi/(alpha + psi)+alpha/(alpha + w));
-                        % sum1 = double(1/(K*w)*symsum((p*lambda*pi*R^2)^m/...
-                            %    (factorial(m)*(1-nu^m)),m,1,Inf));
-                        sum1 = double(((alpha+psi+w)/(psi*w))*symsum((p*lambda*pi*R^2)^m/...
-                              (factorial(m)*m),m,1,K));
-                        sum2 = double(1/(w)*symsum((q_tilde^m+chi)/(K*(q_tilde^m+chi_m)-q_tilde^m)*(p*lambda*pi*R^2)^m/...
-                                factorial(m),m,K+1,Inf));
-                        EXP_OS_DUR_LB(indDt,indW,indLambda,indK,indBL) =  double(1000*(exp(-p*lambda*pi*R^2)/(1-exp(-p*lambda*pi*R^2)))*...
-                                                (sum1+sum2));% In milliseconds
+                        sum1 = double(1/(K*w)*symsum((p*lambda*pi*R^2)^m/...
+                        (factorial(m)),m,K+1,Inf));
+                        EXP_OS_DUR_LB(indDt,indW,indLambda,indK,indBL) =  1000*(exp(-p*lambda*pi*R^2)/(1-exp(-p*lambda*pi*R^2)))*...
+                                                (sum1);% In milliseconds
                     end
                 end 
             end 
@@ -377,5 +363,3 @@ for indLambda=1:length(lambda_BS)
     end
 end 
 save('NoRLF_BlockageDurationTheoryResults_LowerBound','EXP_OS_DUR_LB')
-
-
