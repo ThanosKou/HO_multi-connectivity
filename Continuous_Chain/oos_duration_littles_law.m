@@ -47,6 +47,12 @@ for indBS=1:length(lambda_BS)
                         r_b = sum(X) * alpha;
                         Y = P_out_mxk(M,K,alpha,u,w);
                         E_n_s = sum(Y)*1;
+                        OOS = 0;
+%                         T = t(1:end-1).* P_i1 .* alpha ./ (alpha.*(i)+ (M-i).*u + min(i-1,K).*w)
+                        for i=1:M
+                            OOS = OOS + X(i) *  alpha / (alpha*(i)+ (M-i)*u + (min(i,K)-1)*w);
+                        end
+                        
                         T_OS(indBS,indK,indW,indDt,indA) = T_OS(indBS,indK,indW,indDt,indA) + P_M * E_n_s/r_b;
 %                         P_0,0 * 2 + P1,0 * 1+ P2,0 * 2
                         
