@@ -9,7 +9,7 @@ R = 100; %m Radius
 discoveryTimes=[1,5,20,200,1000]*10^(-3);
 discoveryTime=[1,5,20,200,1000]*10^(-3) + 1/mu;
 discovery = 1./discoveryTime;
-preparationTime = [10 20]*10^-3;
+preparationTime = [10 20 50 100]*10^-3;
 preparation = 1./preparationTime;
 densityBL = [0.01,0.1];
 C = 2*V*densityBL*frac/pi;
@@ -17,7 +17,7 @@ blArrivalRate = 2*C*R/3;
 lambdaBS = [200,300,400,500]*10^(-6);
 outsideselfBlockageAngel = 5/6;
 connectivity = [1 2 3 4];
-RLF_timer = 0.03;
+RLF_timer = 0.05;
 
 for ii=1:length(lambdaBS)
     n = outsideselfBlockageAngel*pi*lambdaBS(ii)*R^2;
@@ -30,6 +30,7 @@ for ii=1:length(lambdaBS)
                 ksi = exp(-mu_prime*RLF_timer);
                 for dw = 1:length(preparation)
                     w = preparation(dw);
+                    syms d
                     if  k == 1
                         q = a/(a+mu_prime);
                         P_OS_UB(ii,jj,cc,dt,dw) = (1-(w/(a+w))*(1-exp(-(1-q)*n))-exp(-n))/(1-exp(-n));
@@ -37,6 +38,8 @@ for ii=1:length(lambdaBS)
                         P_RLF_LB(ii,jj,cc,dt,dw) = P_OS_LB(ii,jj,cc,dt,dw).*exp(-w*RLF_timer) + ...
                             exp(-n)/(1-exp(-n)).*(exp(ksi*q*n) - exp(-w*RLF_timer)*(exp(q*n) - 1) - 1);
                         P_RLF_Large_omega(ii,jj,cc,dt,dw) = double(exp(-(1-ksi*q)*n)-exp(-n)/(1-exp(-n)));
+                        P_Block_Physical(ii,jj,cc,dt,dw) = double((exp(-n))/(1-exp(-n))*symsum((q*n)^d/factorial(d),d,1,Inf));
+                        P_Block_Protocol(ii,jj,cc,dt,dw) = P_OS_LB(ii,jj,cc,dt,dw) - P_Block_Physical(ii,jj,cc,dt,dw);
                     else
                         qq = a/(a+w) + (a/(a+mu_prime))*(w/(a+w));
                         q = a/(a+mu_prime);
@@ -52,6 +55,8 @@ for ii=1:length(lambdaBS)
                         P_RLF_LB(ii,jj,cc,dt,dw) = double(P_OS_LB(ii,jj,cc,dt,dw).*exp(-w*RLF_timer) + ...
                             exp(-n)/(1-exp(-n)).*(exp(ksi*q*n) - exp(-w*RLF_timer)*(exp(q*n) - 1) - 1));
                         P_RLF_Large_omega(ii,jj,cc,dt,dw) = double(exp(-(1-ksi*q)*n)-exp(-n)/(1-exp(-n)));
+                        P_Block_Physical(ii,jj,cc,dt,dw) = double((exp(-n))/(1-exp(-n))*symsum((q*n)^d/factorial(d),d,1,Inf));
+                        P_Block_Protocol(ii,jj,cc,dt,dw) = P_OS_LB(ii,jj,cc,dt,dw) - P_Block_Physical(ii,jj,cc,dt,dw);
                     end
                 end
             end
@@ -62,6 +67,8 @@ save('P_OS_UB','P_OS_UB')
 save('P_OS_LB','P_OS_LB')
 save('P_RLF_LB','P_RLF_LB')
 save('P_RLF_Large_omega','P_RLF_Large_omega')
+save('P_Block_Physical','P_Block_Physical')
+save('P_Block_Protocol','P_Block_Protocol')
 
 
 %% Plot Results

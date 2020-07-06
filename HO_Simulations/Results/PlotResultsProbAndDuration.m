@@ -245,9 +245,9 @@ markertype = {'ro','gp','bx','m*'}
 figure()
 subplot(121)
 for BS_density = 1:4
-    for dt = 1:4 
+    for w = 1:4 
         linestring = [linetype{BS_density},markertype{dt}]
-        if dt ==1 
+        if w ==1 
             semilogy(connectivity,squeeze(P_OS(BS_density,:,w,dt,D_BL)),linestring,'MarkerSize',11,'LineWidth',2)
         else 
             semilogy(connectivity,squeeze(P_OS(BS_density,:,w,dt,D_BL)),linestring,'MarkerSize',8,'LineWidth',2)
@@ -301,7 +301,7 @@ legend();
 
 
 discovery = [1 5 20 200 1000]*10^(-3);
-preparation = [10 20 50 100]*10^(-3);
+preparation = [10 20 50]*10^(-3);
 densityBL = [0.01 0.1];
 lambda_BS = [200 300 400 500]*10^(-6);
 connectivity = [1 2 3 4];
@@ -309,8 +309,7 @@ connectivity = [1 2 3 4];
 
 load('NoRLF_Numerical-Results.mat')
 load('P_OS_LB.mat')
-
-
+load('P_OS')
 
 D_BL =2;
 dt=3;
@@ -319,28 +318,26 @@ linetype = {'-','--',':','-.'}
 markertype = {'ro','gp','bx','m*'}
 figure()
 subplot(121)
-P_OS_LB(:,D_BL,K_1,dt,w)
 for BS_density = 1:4
-    for w = 1:4 
+    for w = 1:3 
         linestring = [linetype{BS_density},markertype{w}]
         if w ==1 
-            semilogy(connectivity,squeeze(P_OS_LB(BS_density,D_BL,:,dt,w)),linestring,'MarkerSize',11,'LineWidth',2)
+            semilogy(connectivity,squeeze(P_OS(BS_density,:,w,dt,D_BL)),linestring,'MarkerSize',11,'LineWidth',2)
         else 
-            semilogy(connectivity,squeeze(P_OS_LB(BS_density,D_BL,:,dt,w)),linestring,'MarkerSize',8,'LineWidth',2)
+            semilogy(connectivity,squeeze(P_OS(BS_density,:,w,dt,D_BL)),linestring,'MarkerSize',8,'LineWidth',2)
         end 
         hold on;
         grid on;
     end
 end
 
-LH(4) = plot(nan, nan, '-ro','MarkerSize',8,'LineWidth',2);
-L{4} = '\Omega = 10 ms';
-LH(3) = plot(nan, nan, '-gp','MarkerSize',8,'LineWidth',2);
-L{3} = '\Omega = 20 ms';
-LH(2) = plot(nan, nan, '-bx','MarkerSize',8,'LineWidth',2);
-L{2} = '\Omega = 50 ms';
-LH(1) = plot(nan, nan, '-m*','MarkerSize',8,'LineWidth',2);
-L{1} = '\Omega = 100 ms';
+
+LH(3) = plot(nan, nan, '-ro','MarkerSize',8,'LineWidth',2);
+L{3} = '\Omega = 10 ms';
+LH(2) = plot(nan, nan, '-gp','MarkerSize',8,'LineWidth',2);
+L{2} = '\Omega = 20 ms';
+LH(1) = plot(nan, nan, '-bx','MarkerSize',8,'LineWidth',2);
+L{1} = '\Omega = 50 ms';
 legend(LH, L);
 xlabel('Degree of Connectivity')
 a = get(gca,'XTickLabel');
@@ -352,12 +349,12 @@ dt=3;
 
 subplot(122)
 for BS_density = 1:4
-    for w = 1:4 
+    for w = 1:3
         linestring = [linetype{BS_density},markertype{w}]
         if w ==1 
-            semilogy(connectivity,squeeze(P_OS_LB(BS_density,D_BL,:,dt,w)),linestring,'MarkerSize',11,'LineWidth',2)
+            semilogy(connectivity,squeeze(P_OS(BS_density,:,w,dt,D_BL)),linestring,'MarkerSize',11,'LineWidth',2)
         else 
-            semilogy(connectivity,squeeze(P_OS_LB(BS_density,D_BL,:,dt,w)),linestring,'MarkerSize',8,'LineWidth',2)
+            semilogy(connectivity,squeeze(P_OS(BS_density,:,w,dt,D_BL)),linestring,'MarkerSize',8,'LineWidth',2)
         end 
         hold on;
         grid on;
@@ -470,11 +467,12 @@ load('LARGE_OMEGA.mat')
 
 figure()
 %subplot(121)
-K_1=4;
+K_1=3;
 semilogy(lambda_BS, reshape(P_OS_LARGE_K(dt,w,:,D_BL),[],1),'-r*','MarkerSize',12,'LineWidth',2)
 hold on;
 grid on;
-semilogy(lambda_BS,P_OS_LB(:,D_BL,K_1,dt,w),'-gd','MarkerSize',16,'LineWidth',2)
+
+semilogy(lambda_BS,P_OS(:,K_1,w,dt,D_BL),'-gd','MarkerSize',16,'LineWidth',2)
 %semilogy(lambda_BS,P_OS_UB(:,D_BL,K_1,dt,w),'-g+')
 semilogy(lambda_BS,reshape(P_OS_LARGE_omega(dt,w,:,D_BL),[],1),'-bs','MarkerSize',12,'LineWidth',2)
 
@@ -482,11 +480,11 @@ semilogy(lambda_BS,reshape(P_OS_LARGE_omega(dt,w,:,D_BL),[],1),'-bs','MarkerSize
 %semilogy(lambda_BS,P_OS(:,K_2,w,dt,D_BL),'-g+')
 %semilogy(lambda_BS,P_OS_UB(:,D_BL,K_2,dt,w),'-gv')
 D_BL =1;
-K_1=4;
+K_1=3;
 semilogy(lambda_BS, reshape(P_OS_LARGE_K(dt,w,:,D_BL),[],1),'-r*','MarkerSize',12,'LineWidth',2)
 hold on;
 grid on;
-semilogy(lambda_BS,P_OS_LB(:,D_BL,K_1,dt,w),'-gd','MarkerSize',16,'LineWidth',2)
+semilogy(lambda_BS,P_OS(:,K_1,w,dt,D_BL),'-gd','MarkerSize',16,'LineWidth',2)
 %semilogy(lambda_BS,P_OS_UB(:,D_BL,K_1,dt,w),'-g+')
 semilogy(lambda_BS,reshape(P_OS_LARGE_omega(dt,w,:,D_BL),[],1),'-bs','MarkerSize',12,'LineWidth',2)
 
@@ -561,7 +559,7 @@ set(gcf,'position',[x0,y0,width,height])
 %% RLF Probability
 
 discovery = [1 5 20 200 1000]*10^(-3);
-preparation = [10 20]*10^(-3);
+preparation = [10 20 50 100]*10^(-3);
 densityBL = [0.01 0.1];
 connectivity = [1 2 3 4];
 load('NoRLF_Numerical-Results.mat')
@@ -580,14 +578,14 @@ semilogy(lambda_BS,P_OS(:,K_1,w,dt,D_BL),'-r*','MarkerSize',9,'LineWidth',2)
 %semilogy(lambda_BS, reshape(final_results(dt,w,:,K_1,D_BL),[],1),'--r*')
 hold on;
 grid on;
-semilogy(lambda_BS,P_RLF_LB(:,D_BL,K_1,dt,w),'-bs','MarkerSize',12,'LineWidth',2)
-semilogy(lambda_BS,P_RLF_Large_omega(:,D_BL,K_1,dt,w),'--gd','MarkerSize',9,'LineWidth',2)
+semilogy(lambda_BS,P_RLF_LB(:,D_BL,K_1,dt,w),'-bs','MarkerSize',16,'LineWidth',2)
+%semilogy(lambda_BS,P_RLF_Large_omega(:,D_BL,K_1,dt,w),'--gd','MarkerSize',9,'LineWidth',2)
 
 K_2=4;
 %semilogy(lambda_BS, reshape(final_results(dt,w,:,K_2,D_BL),[],1),'-r*')
-semilogy(lambda_BS,P_OS(:,K_2,w,dt,D_BL),'-r*','MarkerSize',9,'LineWidth',2)
+semilogy(lambda_BS,P_OS(:,K_2,w,dt,D_BL),'-gd','MarkerSize',9,'LineWidth',2)
 %semilogy(lambda_BS,P_RLF_Large_omega(:,D_BL,K_2,dt,w),'-g+')
-semilogy(lambda_BS,P_RLF_LB(:,D_BL,K_2,dt,w),'-bs','MarkerSize',12,'LineWidth',2)
+semilogy(lambda_BS,P_RLF_LB(:,D_BL,K_2,dt,w),'-m+','MarkerSize',12,'LineWidth',2)
 D_BL =1;
 K_1=1;
 %semilogy(lambda_BS, reshape(final_results(dt,w,:,K_1,D_BL),[],1),':r*')
@@ -595,13 +593,13 @@ hold on;
 grid on;
 semilogy(lambda_BS,P_OS(:,K_1,w,dt,D_BL),'-r*','MarkerSize',9,'LineWidth',2)
 semilogy(lambda_BS,P_RLF_LB(:,D_BL,K_1,dt,w),'-bs','MarkerSize',12,'LineWidth',2)
-semilogy(lambda_BS,P_RLF_Large_omega(:,D_BL,K_1,dt,w),'-gd','MarkerSize',9,'LineWidth',2)
+%semilogy(lambda_BS,P_RLF_Large_omega(:,D_BL,K_1,dt,w),'-gd','MarkerSize',9,'LineWidth',2)
 
 K_2=4;
 %semilogy(lambda_BS, reshape(final_results(dt,w,:,K_2,D_BL),[],1),'-.r*')
-semilogy(lambda_BS,P_OS(:,K_2,w,dt,D_BL),'-r*','MarkerSize',9,'LineWidth',2)
+semilogy(lambda_BS,P_OS(:,K_2,w,dt,D_BL),'-gd','MarkerSize',9,'LineWidth',2)
 %semilogy(lambda_BS,P_RLF_Large_omega(:,D_BL,K_2,dt,w),'-.g+')
-semilogy(lambda_BS,P_RLF_LB(:,D_BL,K_2,dt,w),'-bs','MarkerSize',12,'LineWidth',2)
+semilogy(lambda_BS,P_RLF_LB(:,D_BL,K_2,dt,w),'-m+','MarkerSize',12,'LineWidth',2)
 
 
 %legend({['Simulation K=',num2str(K_1),' bl. density=0.1 bl/m^2'],['Theory K=',num2str(K_1),' bl. density=0.1 bl/m^2'],['Theory lower bound K=',num2str(K_1),' bl. density=0.1 bl/m^2'],['Simulation K=',num2str(K_2),' bl. density=0.1 bl/m^2'],['Theory K=',num2str(K_2),' bl. density=0.1 bl/m^2'],['Theory lower bound K=',num2str(K_2),' bl. density=0.1 bl/m^2'],['Simulation K=',num2str(K_1),' bl. density=0.01 bl/m^2'],['Theory K=',num2str(K_1),' bl. density=0.01 bl/m^2'],['Theory lower bound K=',num2str(K_1),' bl. density=0.01 bl/m^2'],['Simulation K=',num2str(K_2),' bl. density=0.01 bl/m^2'],['Theory K=',num2str(K_2),' bl. density=0.01 bl/m^2'],['Theory lower bound K=',num2str(K_2),' bl. density=0.01 bl/m^2']},'FontSize',12,'location','westoutside')
@@ -621,29 +619,29 @@ K_1=1;
 %semilogy(lambda_BS, reshape(final_results(dt,w,:,K_1,D_BL),[],1),'--r*')
 hold on;
 grid on;
-semilogy(lambda_BS,P_OS(:,K_1,w,dt,D_BL),'--r*','MarkerSize',9,'LineWidth',2)
-semilogy(lambda_BS,P_RLF_LB(:,D_BL,K_1,dt,w),'--bs','MarkerSize',12,'LineWidth',2)
-semilogy(lambda_BS,P_RLF_Large_omega(:,D_BL,K_1,dt,w),'--gd','MarkerSize',9,'LineWidth',2)
+semilogy(lambda_BS,P_OS(:,K_1,w,dt,D_BL),'-r*','MarkerSize',9,'LineWidth',2)
+semilogy(lambda_BS,P_RLF_LB(:,D_BL,K_1,dt,w),'-bs','MarkerSize',12,'LineWidth',2)
+%semilogy(lambda_BS,P_RLF_Large_omega(:,D_BL,K_1,dt,w),'--gd','MarkerSize',9,'LineWidth',2)
 
 K_2=4;
 %semilogy(lambda_BS, reshape(final_results(dt,w,:,K_2,D_BL),[],1),'-r*')
-semilogy(lambda_BS,P_OS(:,K_2,w,dt,D_BL),'-r*','MarkerSize',9,'LineWidth',2)
+semilogy(lambda_BS,P_OS(:,K_2,w,dt,D_BL),'-gd','MarkerSize',9,'LineWidth',2)
 %semilogy(lambda_BS,P_RLF_Large_omega(:,D_BL,K_2,dt,w),'-g+')
-semilogy(lambda_BS,P_RLF_LB(:,D_BL,K_2,dt,w),'-bs','MarkerSize',12,'LineWidth',2)
+semilogy(lambda_BS,P_RLF_LB(:,D_BL,K_2,dt,w),'-m+','MarkerSize',12,'LineWidth',2)
 D_BL =1;
 K_1=1;
 %semilogy(lambda_BS, reshape(final_results(dt,w,:,K_1,D_BL),[],1),':r*')
 hold on;
 grid on;
-semilogy(lambda_BS,P_OS(:,K_1,w,dt,D_BL),':r*','MarkerSize',9,'LineWidth',2)
-semilogy(lambda_BS,P_RLF_LB(:,D_BL,K_1,dt,w),':bs','MarkerSize',12,'LineWidth',2)
-semilogy(lambda_BS,P_RLF_Large_omega(:,D_BL,K_1,dt,w),':gd','MarkerSize',9,'LineWidth',2)
+semilogy(lambda_BS,P_OS(:,K_1,w,dt,D_BL),'-r*','MarkerSize',9,'LineWidth',2)
+semilogy(lambda_BS,P_RLF_LB(:,D_BL,K_1,dt,w),'-bs','MarkerSize',12,'LineWidth',2)
+%semilogy(lambda_BS,P_RLF_Large_omega(:,D_BL,K_1,dt,w),':gd','MarkerSize',9,'LineWidth',2)
 
 K_2=4;
 %semilogy(lambda_BS, reshape(final_results(dt,w,:,K_2,D_BL),[],1),'-.r*')
-semilogy(lambda_BS,P_OS(:,K_2,w,dt,D_BL),'-.r*','MarkerSize',9,'LineWidth',2)
+semilogy(lambda_BS,P_OS(:,K_2,w,dt,D_BL),'-gd','MarkerSize',9,'LineWidth',2)
 %semilogy(lambda_BS,P_RLF_Large_omega(:,D_BL,K_2,dt,w),'-.g+')
-semilogy(lambda_BS,P_RLF_LB(:,D_BL,K_2,dt,w),'-.bs','MarkerSize',12,'LineWidth',2)
+semilogy(lambda_BS,P_RLF_LB(:,D_BL,K_2,dt,w),'-m+','MarkerSize',12,'LineWidth',2)
 
 a = get(gca,'XTickLabel');
 set(gca,'XTickLabel',a,'FontName','Times','fontsize',16)
@@ -654,18 +652,20 @@ fig=gcf;
 Lgnd = legend('show');
 Lgnd.Position(1) = 0.1;
 Lgnd.Position(2) = 0.4;
-legend({['Out-of-service probability, K = ',num2str(K_1),', \lambda_B = 0.1 bl/m^2'],['RLF Probability K = ',num2str(K_1),', \lambda_B = 0.1 bl/m^2'],['RLF Probability for large \omega',', \lambda_B = 0.1 bl/m^2'],['Out-of-service probability K = ',num2str(K_2),', \lambda_B = 0.1 bl/m^2'],['RLF probability K = ',num2str(K_2),', \lambda_B = 0.1 bl/m^2'],['Out-of-service probability K = ',num2str(K_1),', \lambda_B = 0.01 bl/m^2'],['RLF probability K = ',num2str(K_1),', \lambda_B = 0.01 bl/m^2'],['RLF probability for large \omega',', \lambda_B = 0.01 bl/m^2'],['Out-of-service probability K = ',num2str(K_2),', \lambda_B = 0.01 bl/m^2'],['RLF probability K = ',num2str(K_2),', \lambda_B = 0.01 bl/m^2']},'FontSize',12)
+%legend({['Out-of-service probability, K = ',num2str(K_1),', \lambda_B = 0.1 bl/m^2'],['RLF Probability K = ',num2str(K_1),', \lambda_B = 0.1 bl/m^2'],['RLF Probability for large \omega',', \lambda_B = 0.1 bl/m^2'],['Out-of-service probability K = ',num2str(K_2),', \lambda_B = 0.1 bl/m^2'],['RLF probability K = ',num2str(K_2),', \lambda_B = 0.1 bl/m^2'],['Out-of-service probability K = ',num2str(K_1),', \lambda_B = 0.01 bl/m^2'],['RLF probability K = ',num2str(K_1),', \lambda_B = 0.01 bl/m^2'],['RLF probability for large \omega',', \lambda_B = 0.01 bl/m^2'],['Out-of-service probability K = ',num2str(K_2),', \lambda_B = 0.01 bl/m^2'],['RLF probability K = ',num2str(K_2),', \lambda_B = 0.01 bl/m^2']},'FontSize',12)
 
 xlabel('BS Density (BSs/km^2)')
 ylabel('Out-of-service & RLF probability')
 title(['\Delta= ',num2str(preparation(w)),' \Omega= ', num2str(discovery(dt))],'FontSize',12)
 
 LH(1) = plot(nan, nan, '-r*','MarkerSize',8,'LineWidth',2);
-L{1} = 'Large K';
-LH(2) = plot(nan, nan, '-gd','MarkerSize',8,'LineWidth',2);
-L{2} = 'Theory K=4';
-LH(3) = plot(nan, nan, '-bs','MarkerSize',8,'LineWidth',2);
-L{3} = 'Large \omega';
+L{1} = 'K=1, Out-of-service';
+LH(2) = plot(nan, nan, '-bs','MarkerSize',8,'LineWidth',2);
+L{2} = 'K=1, RLF probability';
+LH(3) = plot(nan, nan, '--rd','MarkerSize',8,'LineWidth',2);
+L{3} = 'K=4, Out-of-service';
+LH(4) = plot(nan, nan, '--b+','MarkerSize',8,'LineWidth',2);
+L{4} = 'K=4, RLF probability';
 legend(LH, L);
 
 
@@ -719,6 +719,7 @@ final_results1 = 1000*mean_blockages;
 load('NoRLF_BlockageDurationTheoryResults.mat')
 load('T_OS_thanos_avg.mat')
 load('T_OS_little_with_minikbound.mat')
+load('T_OS_linear_avg.mat')
 
 discovery = [1 5 20 200 1000]*10^(-3);
 preparation = [10 20]*10^(-3);
@@ -733,11 +734,11 @@ figure()
 
 subplot(121)
 
-linetype = {'-',':'};
+linetype = {'-',':','-.','--'};
 markertype = {'r*','go','bs','m+'};
 
-K_to_plot = [1,4];
-dt_to_plot = [1,4];
+K_to_plot = [1,2,3,4];
+dt_to_plot = [4];
 w_to_plot = [1,2];
 for ii=1:length(K_to_plot)
     for jj=1:length(dt_to_plot)
@@ -749,15 +750,15 @@ for ii=1:length(K_to_plot)
             grid on
             linestring = [linetype{ii},markertype{2*(jj-1)+kk}];
             %semilogy(lambda_BS,reshape(EXP_OS_DUR(dt,w,:,K_1,D_BL),[],1),linestring,...
-            semilogy(lambda_BS,T_LB(:,K_1,w,dt,D_BL),linestring,...
+            semilogy(lambda_BS,T_OS(:,K_1,w,dt,D_BL),linestring,...
                 'LineWidth',2,...
-                'DisplayName',[', \Omega = ', num2str(1000*preparation(w)), ' ms',...
+                'DisplayName',[', K = ', num2str(K_1),...
                 ', \Delta = ',num2str(1000*discovery(dt)),' ms'])
         end
     end
 end
 %T_OS(:,K_1,w,dt,D_BL)
-title(['a) \lambda_B = 0.1 bl/m^2'] )
+title(['a) \lambda_B = 0.1 bl/m^2, \Delta = 200ms'] )
 ylabel('Out-of-service duration (ms)')
 xlabel('BS Density (BSs/km^2)')
 set(gca, 'FontName','Times', 'fontsize',16)
@@ -775,9 +776,9 @@ for ii=1:length(K_to_plot)
             grid on
             linestring = [linetype{ii},markertype{2*(jj-1)+kk}];
             %semilogy(lambda_BS,reshape(EXP_OS_DUR(dt,w,:,K_1,D_BL),[],1),linestring,...
-            semilogy(lambda_BS,T_LB(:,K_1,w,dt,D_BL),linestring,...
+            semilogy(lambda_BS,T_OS(:,K_1,w,dt,D_BL),linestring,...
                 'LineWidth',2,...
-                'DisplayName',[ '\Omega = ', num2str(1000*preparation(w)), ' ms',...
+                'DisplayName',[ 'K = ', K_1,...
                 ', \Delta = ',num2str(1000*discovery(dt)),' ms'])
         end
     end
@@ -787,7 +788,7 @@ end
 %semilogy(lambda_BS, reshape(final_results1(dt,w,:,K_2,D_BL),[],1),'-vr')
 %semilogy(lambda_BS,reshape(EXP_OS_DUR(dt,w,:,K_2,D_BL),[],1),'-bv')
 
-legend()
+legend('K = 1, \Omega = 10 ms','K = 1, \Omega = 20 ms','K = 2, \Omega = 10 ms','K = 2, \Omega = 20 ms','K = 3, \Omega = 10 ms','K = 3, \Omega = 20 ms','K = 4, \Omega = 10 ms','K = 4, \Omega = 20 ms')
 title(['b) \lambda_B = 0.01 bl/m^2'] )
 ylabel('Out-of-service duration (ms)')
 xlabel('BS Density (BSs/km^2)')
@@ -859,8 +860,8 @@ subplot(121)
 linetype = {'-','-','-','-'};
 markertype = {'r*','go','bs','m+'};
 
-K_to_plot = [1,4];
-dt_to_plot = [1,4];
+K_to_plot = [1,2,3,4];
+dt_to_plot = [1];
 w_to_plot = [1];
 for ii=1:length(K_to_plot)
     for jj=1:length(dt_to_plot)
@@ -1051,7 +1052,7 @@ connectivity = [1 2 3 4];
 
 
 load('NoRLF_Numerical-Results.mat')
-load('P_OS_LB.mat')
+load('P_OS.mat')
 load('P_Block_Physical.mat')
 load('P_Block_Protocol.mat')
 
@@ -1062,8 +1063,7 @@ w=2;
 linetype = {'-','--',':','-.'}
 markertype = {'r*','gp','bx','mo'}
 figure()
-
-semilogy(connectivity,squeeze(P_OS_LB(1,D_BL,:,dt,w)),...
+semilogy(connectivity,squeeze(P_OS(1,:,w,dt,D_BL)),...
             '-bs','MarkerSize',12,'LineWidth',2,...
             'DisplayName',[ 'BS Density = ',num2str(1e6*lambda_BS(2)),'/km^2, ',...
                             '\Delta = ',num2str(1000*discovery(dt)),' ms'])
@@ -1080,7 +1080,7 @@ semilogy(connectivity,squeeze(P_Block_Physical(1,D_BL,:,dt,w)),...
                             '\Delta = ',num2str(1000*discovery(dt)),' ms'])                        
                         
  
-semilogy(connectivity,squeeze(P_OS_LB(4,D_BL,:,dt,w)),...
+semilogy(connectivity,squeeze(P_OS(4,:,w,dt,D_BL)),...
     '-.bs','MarkerSize',12,'LineWidth',2,...
     'DisplayName',[ 'BS Density = ',num2str(1e6*lambda_BS(4)),'/km^2, ',...
                             '\Delta = ',num2str(1000*discovery(dt)),' ms'])
